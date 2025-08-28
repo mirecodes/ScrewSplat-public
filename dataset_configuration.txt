@@ -1,5 +1,5 @@
 datasets/
-├── partnet_mobility_blender/ 
+├── final/ 
 │   ├── foldingchair
 │   │   └── 102255/
 │   │       └── sequential_steps_5_full_48/
@@ -19,34 +19,28 @@ datasets/
 │   │   ├── ...
 │   ├── ...
 │
-├── final/
-│   ├── ... (the same with "partnet_mobility_blender/" above)
-│
-├── partnet_mobility_blender_eval/
-│   ├── foldingchair
-│   │   └── 102255/
-│   │       └── sequential_steps_5_full_48/
-│   │           ├── 0/
-│   │           │   ├── camera_pose/
-│   │           │   ├── depths/
-│   │           │   ├── depths_exr/
-│   │           │   ├── extrinsics/
-│   │           │   ├── images/
-│   │           │   ├── intrinsic.npy
-│   │           │   ├── material.mtl
-│   │           │   ├── material_0.png
-│   │           │   ├── mesh.obj
-│   │           │   ├── point_cloud_movable_1.npy
-│   │           │   ├── ...
-│   │           │   ├── point_cloud_static.npy
-│   │           │   ├── point_cloud_whole.npy
-│   │           │   └── theta.npy
-│   │           ├── 0.5/
-│   │           ├── ...
-│   │           └── screws.npy
-│   ├── refrigerator 
-│   │   ├── ...
-│   ├── ...
-│
 └── final_eval/
-    ├── ... (the same with "partnet_mobility_blender_eval/" above)
+    ├── foldingchair
+    │   └── 102255/
+    │       └── sequential_steps_5_full_48/
+    │           ├── 0/
+    │           │   ├── camera_pose/
+    │           │   ├── depths/
+    │           │   ├── depths_exr/
+    │           │   ├── extrinsics/
+    │           │   ├── images/
+    │           │   ├── intrinsic.npy
+    │           │   ├── material.mtl
+    │           │   ├── material_0.png
+    │           │   ├── mesh.obj
+    │           │   ├── point_cloud_movable_1.npy
+    │           │   ├── ...
+    │           │   ├── point_cloud_static.npy
+    │           │   ├── point_cloud_whole.npy
+    │           │   └── theta.npy
+    │           ├── 0.5/
+    │           ├── ...
+    │           └── screws.npy
+    ├── refrigerator 
+    │   ├── ...
+    ├── ... 
