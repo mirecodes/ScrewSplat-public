@@ -68,22 +68,22 @@ Below are the rendered output videos from the above example commands. (The video
     <span style="width: 25%">
         <img src="assets/1.gif"
             alt="1"
-            width="375"/>
+            width="185"/>
     </span>
     <span style="width: 25%">
         <img src="assets/2.gif"
             alt="2"
-            width="375"/>
+            width="185"/>
     </span>
     <span style="width: 25%">
         <img src="assets/3.gif"
             alt="3"
-            width="375"/>
+            width="185"/>
     </span>
     <span style="width: 25%">
         <img src="assets/4.gif"
             alt="4"
-            width="375"/>
+            width="185"/>
     </span>
 </div>
 
