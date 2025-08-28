@@ -65,31 +65,28 @@ python make_videos.py --model_path output/pretrained/storage/45503/random_steps_
 
 Below are the rendered output videos from the above example commands. (The videos are saved in the home directory of the repository with the names ``rendered_rgb.mp4`` and ``geometry.mp4``). 
 <div class="imgCollage">
-  <span style="width: 24.5%">
-    <video width="250" autoplay loop>
-      <source src="assets/1.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
-  </span>
-  <span style="width: 24.5%">
-    <video width="250" autoplay loop>
-      <source src="assets/2.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
-  </span>
-  <span style="width: 24.5%">
-    <video width="250" autoplay loop>
-      <source src="assets/3.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
-  </span>
-  <span style="width: 24.5%">
-    <video width="250" autoplay loop>
-      <source src="assets/4.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
-  </span>
+    <span style="width: 25%">
+        <img src="assets/1.gif"
+            alt="1"
+            width="375"/>
+    </span>
+    <span style="width: 25%">
+        <img src="assets/2.gif"
+            alt="2"
+            width="375"/>
+    </span>
+    <span style="width: 25%">
+        <img src="assets/3.gif"
+            alt="3"
+            width="375"/>
+    </span>
+    <span style="width: 25%">
+        <img src="assets/4.gif"
+            alt="4"
+            width="375"/>
+    </span>
 </div>
+
 
 ### Visualizing ScrewSplat Optimization Procedure
 If you would like to visualize the optimization procedure of ScrewSplat, you can use the following Open3D-based script. Below is an example script using an optimized ScrewSplat model. Simply download it from [this Google Drive link](https://drive.google.com/drive/folders/1D1AOUkeeOkC9FXwHUhbPlpIyKdDgCg8h?usp=sharing), and place the ``example`` folder into the ``output`` directory:
@@ -110,7 +107,7 @@ parser.add_argument("--checkpoint_iterations", nargs="+", type=int,
 
 ## Articulated Object Manipulation with ScrewSplat
 
-### (Optional) Download Pretrained ScrewSplat
+### Download Pretrained ScrewSplat
 If you prefer to use a pre-generated dataset instead of generatin one yourself, simply download it from [this Google Drive link](https://drive.google.com/drive/folders/1ClplSaVC_Hk12W_zjJz8sWOQwTmOp2Nz?usp=sharing), and place the ``pretrained`` folder into the ``output`` directory.
 
 ### Text-guided Articulated Object Joint Angle Control 
@@ -137,7 +134,7 @@ python control.py
 ```
 For more details, refer to the ``control/__init__.py`` file and the configuration file at ``control/control.yml``.
 
-## (Optional) Create Custom Dataset
+## Generate Custom Articulated Object Dataset
 
 ### Download Articulated Object Assets and Blender
 If you want to generate your own dataset that includes RGB images rendered from diverse articulated objects, you will need to download both the articulated object assets and the Blender program.
