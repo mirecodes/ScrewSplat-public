@@ -12,7 +12,7 @@ Young Hun Kim<sup>1</sup>,
 <br>
 <sup>1</sup>Seoul National University, <sup>2</sup>MIT, 
 
-[Project Page](https://screwsplat.github.io/) | [Paper](https://arxiv.org/pdf/2508.02146)
+[Project Page](https://screwsplat.github.io/) | [Paper](https://arxiv.org/pdf/2508.02146) | [3-min Video](https://www.youtube.com/watch?v=xq3YmYHJ-XQ)
 
 </div>
 
