@@ -450,7 +450,6 @@ def training_report(
             for j, theta in enumerate(thetas):
 
                 # images
-                print(theta)
                 renderArgs_ = renderArgs + (theta,)
                 image = torch.clamp(
                     renderFunc(
