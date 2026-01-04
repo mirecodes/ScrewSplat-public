@@ -24,7 +24,7 @@ render_info:
 # dataset information
 dataset_info: 
   offset: 0.0               # Initial joint displacement (radians or normalized value)
-  steps: 5                  # Number of articulation steps to sample
+  steps: 1                  # Number of articulation steps to sample
   mode: sequential          # Data generation mode: 'sequential' or 'random'
   split_list: [train, test] # Dataset splits to generate (e.g., train/test)
 

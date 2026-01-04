@@ -12,6 +12,7 @@ if __name__ == '__main__':
 	# argparse
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--config', type=str, default='configs/gen_data_config.yml')
+	parser.add_argument('--verbose', action='store_true', help='Enable verbose output')
 	args, unknown = parser.parse_known_args()
 	cfg = OmegaConf.load(args.config)
 
@@ -52,6 +53,8 @@ if __name__ == '__main__':
 
 	# data generation
 	for object_class in object_classes:
+		if args.verbose:
+			print(f"[INFO] Processing object class: {object_class}")
 
 		# object info
 		category = object_class.split('-')[0]
@@ -72,4 +75,4 @@ if __name__ == '__main__':
 			joint_indices=joint_indices,
 			joint_custom_limits=joint_limits,
 			shadow_on=shadow_on,
-			mode=mode, split_list=split_list, view_name=view_name)
+			mode=mode, split_list=split_list, view_name=view_name, verbose=args.verbose)

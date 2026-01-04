@@ -41,7 +41,7 @@ class ArticulatedObjectRenderer:
 	def generate_mobility_dataset(
 			self, camera_poses, steps=3, offset=0.0, 
 			joint_indices=None, joint_custom_limits=None, shadow_on=False,
-			mode='sequential', split_list=[], view_name=''):
+			mode='sequential', split_list=[], view_name='', verbose=False):
 
 		# save directory
 		if 'train' in split_list:
@@ -52,6 +52,8 @@ class ArticulatedObjectRenderer:
 				self.model_id,
 				f'{mode}_steps_{steps}_{view_name}')
 			os.makedirs(dir_save_train, exist_ok=True)
+			if verbose:
+				print(f"[INFO] Train directory created: {dir_save_train}")
 		if 'test' in split_list:
 			dir_save_test = os.path.join(
 				'datasets',
@@ -60,8 +62,12 @@ class ArticulatedObjectRenderer:
 				self.model_id,
 				f'{mode}_steps_{steps}_{view_name}')
 			os.makedirs(dir_save_test, exist_ok=True)
+			if verbose:
+				print(f"[INFO] Test directory created: {dir_save_test}")
 
 		# set valid joint joint limits
+		if verbose:
+			print("[INFO] Setting joint limits...")
 		if (joint_indices is None) and (joint_custom_limits is None):
 			joint_limits = torch.stack([values['limit'] 
 				for _, values in self.articulated_object.S_screws.items()])
@@ -93,6 +99,9 @@ class ArticulatedObjectRenderer:
 				for i, (_, values) in enumerate(self.articulated_object.S_screws.items())
 			])
 
+		if verbose:
+			print(f"[INFO] Joint limits set:\n{joint_limits}")
+
 		# save screws and joint limits
 		if 'test' in split_list:
 			if (joint_indices is None) and (joint_custom_limits is None):
@@ -116,6 +125,8 @@ class ArticulatedObjectRenderer:
 						S_screws_modified[key] = new_value
 			np.save(
 				os.path.join(dir_save_test, 'screws.npy'), S_screws_modified)
+			if verbose:
+				print(f"[INFO] Screws saved to {os.path.join(dir_save_test, 'screws.npy')}")
 
 		# interpolates
 		if mode == 'sequential': # simple linear interpolates
@@ -129,8 +140,13 @@ class ArticulatedObjectRenderer:
 			thetas = torch.rand(steps, joint_limits.shape[0])
 			thetas = joint_limits[:, 0] + thetas * (joint_limits[:, 1] - joint_limits[:, 0])
 
+		if verbose:
+			print(f"[INFO] Thetas generated. Shape: {thetas.shape}")
+
 		# generate dataset
 		for split in split_list:
+			if verbose:
+				print(f"[INFO] Processing split: {split}")
 			if split == 'train':
 				thetas_ = thetas
 			elif split == 'test':
@@ -147,13 +163,17 @@ class ArticulatedObjectRenderer:
 				elif split == 'test':
 					self.dir_save = dir_save_test
 					folder_name = f'{i/2:.1f}'
+				
+				if verbose:
+					print(f"[INFO] Generating data for step {i}, folder: {folder_name}")
+				
 				self.generate(
 					camera_poses, theta, split=split, 
-					folder_name=folder_name, shadow_on=shadow_on)
+					folder_name=folder_name, shadow_on=shadow_on, verbose=verbose)
 
 	def generate(
 			self, camera_poses, theta, 
-			split='train', folder_name='temp', shadow_on=False, n_pc=2048):
+			split='train', folder_name='temp', shadow_on=False, n_pc=2048, verbose=False):
 
 		# make folder and save intrinsic
 		os.makedirs(os.path.join(self.dir_save, folder_name), exist_ok=True)
@@ -219,6 +239,8 @@ class ArticulatedObjectRenderer:
 			np.save(save_whole_pc_name, np.array(points))
 
 		# save mesh
+		if verbose:
+			print(f"[INFO] Exporting mesh to {os.path.join(self.dir_save, folder_name, 'mesh.obj')}")
 		obj_data, texture_data = trimesh.exchange.obj.export_obj(
 			combined_mesh, return_texture=True, include_normals=True)
 		with open(os.path.join(self.dir_save, folder_name, 'mesh.obj'), "w") as f:
@@ -227,11 +249,27 @@ class ArticulatedObjectRenderer:
 		with open(os.path.join(self.dir_save, folder_name, 'material.mtl'), "wb") as f:
 			f.write(texture_data['material.mtl'])
 			f.close()
-		with open(os.path.join(self.dir_save, folder_name, 'material_0.png'), "wb") as f:
-			f.write(texture_data['material_0.png'])
-			f.close()     
+		
+		# Save texture if it exists
+		if 'material_0.png' in texture_data:
+			if verbose:
+				print(f"[INFO] Saving texture material_0.png")
+			with open(os.path.join(self.dir_save, folder_name, 'material_0.png'), "wb") as f:
+				f.write(texture_data['material_0.png'])
+				f.close()
+		else:
+			# Check if there are any png files in texture_data and save them
+			for key, value in texture_data.items():
+				if key.endswith('.png'):
+					if verbose:
+						print(f"[INFO] Saving texture {key}")
+					with open(os.path.join(self.dir_save, folder_name, key), "wb") as f:
+						f.write(value)
+						f.close()
 
 		# render
+		if verbose:
+			print(f"[INFO] Rendering {len(camera_poses)} images...")
 		for i, pose in enumerate(camera_poses):
 
 			# save name
