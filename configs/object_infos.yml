@@ -42,3 +42,10 @@ refrigerator-2:
 storage-3:
   model_id: 45503
   scale: 0.25
+
+# Custom
+toilet:
+  model_id: 102621
+  scale: 0.20
+  joint_indices: [0, 1, 2, 3]
+  joint_limits: [[0, 0], [1.048, 1.048], [0.524, 0.524], [0, 0]]

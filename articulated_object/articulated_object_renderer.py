@@ -73,9 +73,25 @@ class ArticulatedObjectRenderer:
 				for i, (_, values) in enumerate(self.articulated_object.S_screws.items())
 			])
 		elif (joint_indices is None) and (joint_custom_limits is not None):
-			joint_limits = torch.tensor([joint_custom_limits])
+			joint_limits = torch.tensor(joint_custom_limits)
+			if joint_limits.dim() == 1:
+				joint_limits = joint_limits.unsqueeze(0)
+			if len(joint_limits) == 1 and len(self.articulated_object.S_screws) > 1:
+				joint_limits = joint_limits.repeat(len(self.articulated_object.S_screws), 1)
 		elif (joint_indices is not None) and (joint_custom_limits is not None):
-			raise NotImplementedError
+			custom_limits = torch.tensor(joint_custom_limits)
+			if custom_limits.dim() == 1:
+				custom_limits = custom_limits.unsqueeze(0)
+			
+			if len(custom_limits) == 1 and len(joint_indices) > 1:
+				custom_limits = custom_limits.repeat(len(joint_indices), 1)
+			
+			limit_map = {idx: limit for idx, limit in zip(joint_indices, custom_limits)}
+			
+			joint_limits = torch.stack([
+				limit_map[i] if i in joint_indices else torch.tensor([values['limit'][0], values['limit'][0]])
+				for i, (_, values) in enumerate(self.articulated_object.S_screws.items())
+			])
 
 		# save screws and joint limits
 		if 'test' in split_list:
@@ -90,9 +106,14 @@ class ArticulatedObjectRenderer:
 			elif (joint_indices is None) and (joint_custom_limits is not None):
 				S_screws_modified = deepcopy(self.articulated_object.S_screws)
 				for i, (keys, values) in enumerate(S_screws_modified.items()):
-					values['limit'] = joint_limits[0]
+					values['limit'] = joint_limits[i]
 			elif (joint_indices is not None) and (joint_custom_limits is not None):
-				raise NotImplementedError
+				S_screws_modified = {}
+				for i, (key, value) in enumerate(self.articulated_object.S_screws.items()):
+					if i in joint_indices:
+						new_value = deepcopy(value)
+						new_value['limit'] = joint_limits[i]
+						S_screws_modified[key] = new_value
 			np.save(
 				os.path.join(dir_save_test, 'screws.npy'), S_screws_modified)
 

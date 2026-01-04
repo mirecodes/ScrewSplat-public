@@ -1,7 +1,7 @@
 # object information
 # Choose from: foldingchair, refrigerator, laptop, oven, scissor, stapler, usb, 
 #              washer, knife, storage, storage-2, refrigerator-2, storage-3
-object_class: storage       # Object class name to visualize
+object_class: toilet       # Object class name to visualize
 
 # articulation
 joint_angle: 0.2            # Set all joint angles to this value

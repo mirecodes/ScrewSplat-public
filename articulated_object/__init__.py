@@ -36,7 +36,11 @@ class ArticulatedObject:
 		meshes = []
 
 		# visualize object
-		thetas = torch.ones(len(self.S_screws.keys())) * theta
+		if isinstance(theta, torch.Tensor) and theta.numel() > 1:
+			thetas = theta
+		else:
+			thetas = torch.ones(len(self.S_screws.keys())) * theta
+
 		mesh = self.update_object(thetas)
 		global_frame = trimesh.creation.axis(
 			origin_size=0.02, transform=np.eye(4))
