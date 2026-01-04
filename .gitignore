@@ -1,1 +1,20 @@
 .vscode
+
+# datasets
+/datasets
+
+# intermediates
+/output
+/temp
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Generated Media
+*.mp4
+
+# Environment & System
+.env
+venv/
+.DS_Store

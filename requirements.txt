@@ -21,4 +21,3 @@ pycuda
 
 # for control
 scikit-optimize
-transformers==4.46.3
