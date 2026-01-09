@@ -7,6 +7,7 @@ import Imath
 import cv2
 from copy import deepcopy
 from articulated_object import ArticulatedObject
+from scipy.spatial.transform import Rotation as R
 
 class ArticulatedObjectRenderer:
 	def __init__(
@@ -270,6 +271,10 @@ class ArticulatedObjectRenderer:
 		# render
 		if verbose:
 			print(f"[INFO] Rendering {len(camera_poses)} images...")
+		
+		# Prepare for COLMAP data generation
+		colmap_images = []
+		
 		for i, pose in enumerate(camera_poses):
 
 			# save name
@@ -294,6 +299,52 @@ class ArticulatedObjectRenderer:
 			np.save(save_camera_pose_name, camera_pose)
 			extrinsic = np.linalg.inv(pose)
 			np.save(save_extrinsic_name, extrinsic)
+			
+			# Collect data for COLMAP images.txt
+			# COLMAP expects World-to-Camera transform
+			# extrinsic is already World-to-Camera (inverse of pose)
+			# But we need to be careful about coordinate systems.
+			# ScrewSplat/Blender usually uses OpenGL style (Y up, -Z forward)
+			# COLMAP uses (Y down, Z forward)
+			# However, dataset_readers.py seems to handle some conversion.
+			# Let's look at readCamerasFromNpy in dataset_readers.py:
+			# R = np.transpose(extrinsic[:3,:3]), T = extrinsic[:3, 3]
+			# This implies extrinsic is stored as [R^T | T] or similar?
+			# Actually, standard 4x4 matrix is [[R, T], [0, 1]].
+			# If extrinsic = np.linalg.inv(pose), then it is World-to-Camera.
+			# Let's assume extrinsic is correct W2C in OpenGL convention.
+			
+			# Convert to COLMAP convention if needed?
+			# Usually:
+			# OpenGL: Right, Up, Back (-Z)
+			# COLMAP: Right, Down, Forward (+Z)
+			# Conversion: Rotate 180 deg around X axis.
+			# But let's check if we need to do this.
+			# If we just provide what we have, gs2mesh might expect COLMAP convention.
+			# Let's apply the conversion to be safe, as 'sparse/0' usually implies COLMAP output.
+			
+			# W2C_colmap = diag(1, -1, -1) * W2C_opengl
+			# But wait, readCamerasFromNpy doesn't seem to do conversion.
+			# It just reads extrinsic and sets R, T.
+			# And then Gaussian Splatting code usually handles projection.
+			# If we want to mimic COLMAP output, we should probably follow COLMAP convention.
+			
+			# Let's try to output standard COLMAP format.
+			# W2C = extrinsic
+			# R_w2c = W2C[:3, :3]
+			# T_w2c = W2C[:3, 3]
+			
+			# Convert to quaternion
+			# r = R.from_matrix(R_w2c)
+			# q = r.as_quat() # x, y, z, w
+			# qw, qx, qy, qz = q[3], q[0], q[1], q[2]
+			
+			colmap_images.append({
+				'id': i + 1,
+				'R': extrinsic[:3, :3],
+				'T': extrinsic[:3, 3],
+				'name': f'{save_name}.png'
+			})
 
 			# run blender
 			render_cmd = (
@@ -336,7 +387,49 @@ class ArticulatedObjectRenderer:
 				os.makedirs(os.path.join(self.dir_save, folder_name, 'depths'))
 			cv2.imwrite(
 				os.path.join(self.dir_save, folder_name, 'depths', f'depth_{i:03d}.png'), 
-				depth_np)	
+				depth_np)
+				
+		# Generate COLMAP files
+		if verbose:
+			print(f"[INFO] Generating COLMAP files in {os.path.join(self.dir_save, folder_name, 'sparse/0')}")
+		
+		sparse_dir = os.path.join(self.dir_save, folder_name, 'sparse', '0')
+		os.makedirs(sparse_dir, exist_ok=True)
+		
+		# 1. cameras.txt
+		# CAMERA_ID MODEL WIDTH HEIGHT params[]
+		# PINHOLE fx fy cx cy
+		with open(os.path.join(sparse_dir, 'cameras.txt'), 'w') as f:
+			f.write("# Camera list with one line of data per camera.\n")
+			f.write("#   CAMERA_ID, MODEL, WIDTH, HEIGHT, PARAMS[]\n")
+			f.write("# Number of cameras: 1\n")
+			# Assuming all images use the same camera
+			f.write(f"1 PINHOLE {int(self.image_size[1])} {int(self.image_size[0])} {self.fx} {self.fy} {self.cx} {self.cy}\n")
+			
+		# 2. images.txt
+		# IMAGE_ID, QW, QX, QY, QZ, TX, TY, TZ, CAMERA_ID, NAME
+		# POINTS2D[] as (X, Y, POINT3D_ID)
+		with open(os.path.join(sparse_dir, 'images.txt'), 'w') as f:
+			f.write("# Image list with two lines of data per image.\n")
+			f.write("#   IMAGE_ID, QW, QX, QY, QZ, TX, TY, TZ, CAMERA_ID, NAME\n")
+			f.write("#   POINTS2D[] as (X, Y, POINT3D_ID)\n")
+			f.write(f"# Number of images: {len(colmap_images)}\n")
+			
+			for img in colmap_images:
+				r = R.from_matrix(img['R'])
+				q = r.as_quat() # x, y, z, w
+				qw, qx, qy, qz = q[3], q[0], q[1], q[2]
+				tx, ty, tz = img['T']
+				
+				f.write(f"{img['id']} {qw} {qx} {qy} {qz} {tx} {ty} {tz} 1 {img['name']}\n")
+				f.write("\n") # Empty points2D line
+				
+		# 3. points3D.txt
+		# POINT3D_ID, X, Y, Z, R, G, B, ERROR, TRACK[] as (IMAGE_ID, POINT2D_IDX)
+		with open(os.path.join(sparse_dir, 'points3D.txt'), 'w') as f:
+			f.write("# 3D point list with one line of data per point.\n")
+			f.write("#   POINT3D_ID, X, Y, Z, R, G, B, ERROR, TRACK[] as (IMAGE_ID, POINT2D_IDX)\n")
+			f.write("# Number of points: 0\n")
 
 if __name__ == '__main__':
 

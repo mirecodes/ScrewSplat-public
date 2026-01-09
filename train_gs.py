@@ -22,6 +22,9 @@ from tqdm import tqdm
 from utils.image_utils import psnr
 from argparse import ArgumentParser, Namespace
 from arguments import ModelParams, PipelineParams, OptimizationParams
+from scipy.spatial.transform import Rotation as R
+import numpy as np
+
 try:
     from torch.utils.tensorboard import SummaryWriter
     TENSORBOARD_FOUND = True
@@ -52,6 +55,90 @@ def training_total(
         testing_iterations, saving_iterations, 
         checkpoint_iterations, checkpoint, 
         debug_from)
+    
+    # Generate COLMAP files after training
+    generate_colmap_files(scene, dataset.model_path)
+
+def generate_colmap_files(scene, model_path):
+    print(f"\n[INFO] Generating COLMAP files in {model_path}/sparse/0")
+    sparse_dir = os.path.join(model_path, "sparse", "0")
+    os.makedirs(sparse_dir, exist_ok=True)
+
+    train_cameras = scene.getTrainCameras()
+    if not train_cameras:
+        print("[WARNING] No train cameras found, skipping COLMAP file generation.")
+        return
+
+    # 1. cameras.txt
+    # Assuming all cameras share the same intrinsics for simplicity, or take the first one
+    # If multiple cameras have different intrinsics, we should list them all.
+    # But usually in synthetic datasets, they are the same.
+    # Let's iterate and check unique intrinsics if needed, but for now let's just write one per camera or one global if identical.
+    # COLMAP format: CAMERA_ID MODEL WIDTH HEIGHT PARAMS[]
+    
+    # We will write one camera definition per image to be safe, or check if we can reuse ID.
+    # But to be simple and robust, let's assume they might differ and write one per camera ID if we want,
+    # OR just write one camera model if they are all the same.
+    # Let's assume they are the same for now based on typical synthetic setup.
+    
+    first_cam = train_cameras[0]
+    width = first_cam.image_width
+    height = first_cam.image_height
+    fovx = first_cam.FoVx
+    fovy = first_cam.FoVy
+    
+    # Calculate focal length from FoV
+    # fov = 2 * atan(size / (2 * f)) => f = size / (2 * tan(fov/2))
+    fx = width / (2 * np.tan(fovx / 2))
+    fy = height / (2 * np.tan(fovy / 2))
+    cx = width / 2.0
+    cy = height / 2.0
+    
+    # If the camera object has cx, cy, use them.
+    if hasattr(first_cam, 'cx'):
+        cx = first_cam.cx
+    if hasattr(first_cam, 'cy'):
+        cy = first_cam.cy
+        
+    with open(os.path.join(sparse_dir, 'cameras.txt'), 'w') as f:
+        f.write("# Camera list with one line of data per camera.\n")
+        f.write("#   CAMERA_ID, MODEL, WIDTH, HEIGHT, PARAMS[]\n")
+        f.write("# Number of cameras: 1\n")
+        f.write(f"1 PINHOLE {width} {height} {fx} {fy} {cx} {cy}\n")
+
+    # 2. images.txt
+    # IMAGE_ID, QW, QX, QY, QZ, TX, TY, TZ, CAMERA_ID, NAME
+    with open(os.path.join(sparse_dir, 'images.txt'), 'w') as f:
+        f.write("# Image list with two lines of data per image.\n")
+        f.write("#   IMAGE_ID, QW, QX, QY, QZ, TX, TY, TZ, CAMERA_ID, NAME\n")
+        f.write("#   POINTS2D[] as (X, Y, POINT3D_ID)\n")
+        f.write(f"# Number of images: {len(train_cameras)}\n")
+
+        for i, cam in enumerate(train_cameras):
+            # cam.world_view_transform is World-to-View (4x4 tensor)
+            # It is stored as transpose in the Gaussian Splatting code usually!
+            # Let's check scene/cameras.py or similar.
+            # Usually: self.world_view_transform = torch.tensor(getWorld2View2(R, T)).transpose(0, 1).cuda()
+            # So we need to transpose it back to get the matrix.
+            
+            w2c = cam.world_view_transform.transpose(0, 1).cpu().numpy()
+            R_w2c = w2c[:3, :3]
+            T_w2c = w2c[:3, 3]
+            
+            # Convert rotation matrix to quaternion
+            r = R.from_matrix(R_w2c)
+            q = r.as_quat() # x, y, z, w
+            qw, qx, qy, qz = q[3], q[0], q[1], q[2]
+            
+            f.write(f"{cam.uid + 1} {qw} {qx} {qy} {qz} {T_w2c[0]} {T_w2c[1]} {T_w2c[2]} 1 {cam.image_name}\n")
+            f.write("\n")
+
+    # 3. points3D.txt
+    with open(os.path.join(sparse_dir, 'points3D.txt'), 'w') as f:
+        f.write("# 3D point list with one line of data per point.\n")
+        f.write("#   POINT3D_ID, X, Y, Z, R, G, B, ERROR, TRACK[] as (IMAGE_ID, POINT2D_IDX)\n")
+        f.write("# Number of points: 0\n")
+
 
 def training(gaussians, 
              scene,
