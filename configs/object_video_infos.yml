@@ -49,3 +49,10 @@ toilet:
   scale: 1.00
   joint_indices: [0, 1, 2, 3]
   joint_limits: [[0, 1.571], [0, 1.048], [0, 0.524], [0, 0.1]]
+
+# Custom
+faucet:
+  model_id: 167
+  scale: 1.0
+  joint_indices: [ 0, 1, 2 ]
+  joint_limits: [ [ 0, 3.141 ], [ 0, 3.141 ], [ 0, 3.141 ] ]
