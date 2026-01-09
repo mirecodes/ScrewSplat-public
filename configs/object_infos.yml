@@ -46,6 +46,6 @@ storage-3:
 # Custom
 toilet:
   model_id: 102621
-  scale: 1.00
+  scale: 0.4
   joint_indices: [0, 1, 2, 3]
-  joint_limits: [[0, 0], [1.048, 1.048], [0.524, 0.524], [0, 0]]
+  joint_limits: [[0, 1.741], [0, 1.048], [0, 0.524], [0, 0.1]]

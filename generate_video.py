@@ -17,7 +17,7 @@ class VideoGenerationConfig:
     
     # Video settings
     duration: float = 6.0  # seconds
-    fps: int = 24
+    fps: int = 16
     
     # Output settings
     output_dir: str = 'datasets/video_generation'
