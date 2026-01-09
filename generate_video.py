@@ -3,6 +3,7 @@ import argparse
 import os
 import torch
 import cv2
+import shutil
 from dataclasses import dataclass, field
 from typing import List, Optional
 from omegaconf import OmegaConf
@@ -15,16 +16,12 @@ class VideoGenerationConfig:
     config_path: str = 'configs/gen_data_config.yml'
     
     # Video settings
-    num_frames: int = 60
-    camera_idx: int = 0
-    fps: int = 30
+    duration: float = 6.0  # seconds
+    fps: int = 24
     
     # Output settings
     output_dir: str = 'datasets/video_generation'
     verbose: bool = True
-
-    # Optional overrides (if None, use values from config file)
-    # You can add more fields here if you want to override specific config values programmatically
 
 def generate_video(config: VideoGenerationConfig):
     # load object infos
@@ -36,32 +33,31 @@ def generate_video(config: VideoGenerationConfig):
     # object information
     object_classes = cfg.object_classes
 
-    # camera poses
+    # camera info from config
     camera_info = cfg.camera_info
     radius = camera_info['radius']
-    num_phi = camera_info['num_phi']
-    phi_range = np.array(camera_info['phi_range']) / 180 * np.pi
-    num_theta = camera_info['num_theta']
-    theta_range = np.array(camera_info['theta_range']) / 180 * np.pi	
-
+    
+    # Override camera settings for 4 views (90 degree azimuth intervals)
+    # Use mean elevation from config
+    mean_phi = np.mean(camera_info['phi_range'])
+    phi_range_rad = np.array([mean_phi, mean_phi]) / 180 * np.pi
+    
+    # 4 azimuth angles: -180, -90, 0, 90 (covering 360 degrees with 90 deg steps)
+    theta_range_rad = np.array([-180, 90]) / 180 * np.pi
+    
     # camera intrinsics
     camera_intr = cfg.camera_intr
 
-    # camera poses
+    # Generate 4 camera poses
     camera_poses = get_camera_poses(
-        num_phi=num_phi,
-        phi_range=phi_range,
-        num_theta=num_theta,
-        theta_range=theta_range,
+        num_phi=1,
+        phi_range=phi_range_rad,
+        num_theta=4,
+        theta_range=theta_range_rad,
         radius=radius
     )
     
-    # Select specific camera pose
-    if config.camera_idx >= len(camera_poses):
-        print(f"[WARNING] Camera index {config.camera_idx} out of range. Using 0.")
-        selected_camera_pose = camera_poses[0:1]
-    else:
-        selected_camera_pose = camera_poses[config.camera_idx:config.camera_idx+1]
+    print(f"[INFO] Generated {len(camera_poses)} camera poses for video generation.")
 
     # rendering information
     render_info = cfg.render_info
@@ -70,6 +66,9 @@ def generate_video(config: VideoGenerationConfig):
     # dataset information
     dataset_info = cfg.dataset_info
     offset = dataset_info['offset']
+    
+    # Calculate total frames
+    total_frames = int(config.duration * config.fps)
     
     # data generation
     for object_class in object_classes:
@@ -120,8 +119,11 @@ def generate_video(config: VideoGenerationConfig):
                 for i, (_, values) in enumerate(articulated_object.articulated_object.S_screws.items())
             ])
 
-        # Generate interpolation steps (linear)
-        alphas = torch.linspace(0, 1, config.num_frames)
+        # Generate motion: min -> max -> min
+        half_frames = total_frames // 2
+        alphas_forward = torch.linspace(0, 1, half_frames)
+        alphas_backward = torch.linspace(1, 0, total_frames - half_frames)
+        alphas = torch.cat([alphas_forward, alphas_backward])
         
         thetas = []
         for alpha in alphas:
@@ -129,81 +131,89 @@ def generate_video(config: VideoGenerationConfig):
             thetas.append(theta)
         
         # Create output directory for video frames
-        # Ensure model_id is a string to avoid TypeError in os.path.join
-        video_dir = os.path.join(
+        video_base_dir = os.path.join(
             config.output_dir,
             category,
             str(model_id)
         )
-        os.makedirs(video_dir, exist_ok=True)
+        os.makedirs(video_base_dir, exist_ok=True)
         
-        articulated_object.dir_save = video_dir
-        
-        print(f"[INFO] Generating {config.num_frames} frames in {video_dir}...")
-        
-        frame_paths = []
-        
-        for i, theta in enumerate(thetas):
-            folder_name = f'frame_{i:03d}'
+        # Generate video for each camera view
+        for view_idx, pose in enumerate(camera_poses):
+            print(f"[INFO] Generating video for View {view_idx+1}/{len(camera_poses)}...")
             
-            if config.verbose:
-                print(f"Rendering frame {i}/{config.num_frames}")
+            # Temporary directory for frames of this view
+            view_frames_dir = os.path.join(video_base_dir, f'temp_frames_view_{view_idx}')
+            articulated_object.dir_save = view_frames_dir
+            
+            frame_paths = []
+            
+            # Render frames
+            for i, theta in enumerate(thetas):
+                folder_name = f'frame_{i:03d}'
                 
-            # We only render for the selected camera pose
-            articulated_object.generate(
-                selected_camera_pose, theta, split='video', 
-                folder_name=folder_name, shadow_on=shadow_on, verbose=config.verbose)
-            
-            # Collect image path for video creation
-            img_path = os.path.join(video_dir, folder_name, 'images', 'image_000.png')
-            frame_paths.append(img_path)
+                if config.verbose and i % 10 == 0:
+                    print(f"  Rendering frame {i}/{total_frames}")
+                    
+                # Render single frame
+                # We pass a list containing only the current pose
+                articulated_object.generate(
+                    [pose], theta, split='video', 
+                    folder_name=folder_name, shadow_on=shadow_on, verbose=False)
+                
+                # Collect image path
+                img_path = os.path.join(view_frames_dir, folder_name, 'images', 'image_000.png')
+                frame_paths.append(img_path)
 
-        # Create Video from frames
-        if frame_paths:
-            first_frame = cv2.imread(frame_paths[0])
-            if first_frame is not None:
-                height, width, layers = first_frame.shape
-                video_path = os.path.join(video_dir, 'output_video.mp4')
-                
-                # Define codec and create VideoWriter
-                fourcc = cv2.VideoWriter_fourcc(*'mp4v') 
-                video = cv2.VideoWriter(video_path, fourcc, config.fps, (width, height))
-                
-                print(f"[INFO] Encoding video to {video_path}...")
-                for path in frame_paths:
-                    frame = cv2.imread(path)
-                    if frame is not None:
-                        video.write(frame)
-                    else:
-                        print(f"[WARNING] Could not read frame {path}")
-                
-                video.release()
-                print("[INFO] Video generation complete.")
-            else:
-                print("[ERROR] Could not read the first frame to initialize video writer.")
+            # Create Video
+            if frame_paths:
+                first_frame = cv2.imread(frame_paths[0])
+                if first_frame is not None:
+                    height, width, layers = first_frame.shape
+                    video_path = os.path.join(video_base_dir, f'video_view_{view_idx}.mp4')
+                    
+                    # Define codec and create VideoWriter
+                    fourcc = cv2.VideoWriter_fourcc(*'mp4v') 
+                    video = cv2.VideoWriter(video_path, fourcc, config.fps, (width, height))
+                    
+                    print(f"  Encoding video to {video_path}...")
+                    for path in frame_paths:
+                        frame = cv2.imread(path)
+                        if frame is not None:
+                            video.write(frame)
+                    
+                    video.release()
+                else:
+                    print(f"[ERROR] Could not read the first frame for view {view_idx}.")
+            
+            # Cleanup temporary frames
+            if os.path.exists(view_frames_dir):
+                if config.verbose:
+                    print(f"  Cleaning up temporary frames in {view_frames_dir}...")
+                shutil.rmtree(view_frames_dir)
+
+        print(f"[INFO] All videos generated for {object_class}.")
 
 if __name__ == '__main__':
-    # You can modify the configuration here directly
+    # Default configuration
     config = VideoGenerationConfig(
         config_path='configs/gen_video_config.yml',
-        num_frames=60,
-        camera_idx=0,
-        fps=30,
+        duration=6.0,
+        fps=24,
         verbose=True
     )
     
-    # Or override with command line arguments if needed, but primarily controlled by dataclass above
+    # Command line overrides
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, help='Path to config file')
-    parser.add_argument('--num_frames', type=int, help='Number of frames')
-    parser.add_argument('--camera_idx', type=int, help='Camera index')
+    parser.add_argument('--duration', type=float, help='Video duration in seconds')
+    parser.add_argument('--fps', type=int, help='Frames per second')
     parser.add_argument('--verbose', action='store_true', help='Verbose output')
     args = parser.parse_args()
     
-    # Update config from args if provided
     if args.config: config.config_path = args.config
-    if args.num_frames: config.num_frames = args.num_frames
-    if args.camera_idx is not None: config.camera_idx = args.camera_idx
+    if args.duration: config.duration = args.duration
+    if args.fps: config.fps = args.fps
     if args.verbose: config.verbose = True
 
     generate_video(config)
