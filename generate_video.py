@@ -16,7 +16,7 @@ class VideoGenerationConfig:
     config_path: str = 'configs/gen_data_config.yml'
     
     # Video settings
-    duration: float = 6.0  # seconds
+    duration: float = 8.0  # seconds
     fps: int = 16
     
     # Output settings
@@ -119,11 +119,8 @@ def generate_video(config: VideoGenerationConfig):
                 for i, (_, values) in enumerate(articulated_object.articulated_object.S_screws.items())
             ])
 
-        # Generate motion: min -> max -> min
-        half_frames = total_frames // 2
-        alphas_forward = torch.linspace(0, 1, half_frames)
-        alphas_backward = torch.linspace(1, 0, total_frames - half_frames)
-        alphas = torch.cat([alphas_forward, alphas_backward])
+        # Generate motion: min -> max
+        alphas = torch.linspace(0, 1, total_frames)
         
         thetas = []
         for alpha in alphas:
@@ -198,7 +195,7 @@ if __name__ == '__main__':
     # Default configuration
     config = VideoGenerationConfig(
         config_path='configs/gen_video_config.yml',
-        duration=6.0,
+        duration=8.0,
         fps=24,
         verbose=True
     )

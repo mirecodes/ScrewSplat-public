@@ -44,15 +44,21 @@ storage-3:
   scale: 0.25
 
 # Custom
+# 1
 toilet:
   model_id: 102621
   scale: 1.00
   joint_indices: [0, 1, 2, 3]
   joint_limits: [[0, 1.571], [0, 1.048], [0, 0.524], [0, 0.1]]
-
-# Custom
+# 2 faucet
 faucet:
   model_id: 167
   scale: 1.0
   joint_indices: [ 0, 1, 2 ]
   joint_limits: [ [ 0, 3.141 ], [ 0, 3.141 ], [ 0, 3.141 ] ]
+# 3 kettle
+kettle:
+  model_id: 102738
+  scale: 0.4
+  joint_indices: [ 0, 1 ]
+  joint_limits: [ [ 0, 0.1 ], [ -1.571, 1.571] ]

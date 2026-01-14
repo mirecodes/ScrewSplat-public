@@ -73,9 +73,9 @@ def training(gaussians,
     viewpoint_indices = list(range(len(viewpoint_stack)))
 
     # mask value
-    masks = torch.stack([c.mask for c in viewpoint_stack])
-    mask_ratio = torch.sum(masks) / (masks.shape[0] * masks.shape[1] * masks.shape[2])
-    mask_ratio = mask_ratio.detach().item()
+    # masks = torch.stack([c.mask for c in viewpoint_stack])
+    # mask_ratio = torch.sum(masks) / (masks.shape[0] * masks.shape[1] * masks.shape[2])
+    # mask_ratio = mask_ratio.detach().item()
 
     # for accurate gpu time measurement
     iter_start = torch.cuda.Event(enable_timing = True)

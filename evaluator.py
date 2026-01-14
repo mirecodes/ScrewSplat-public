@@ -116,6 +116,12 @@ class Evaluator:
     @torch.no_grad()
     def get_bbox(self, gaussians, joint_angle):
         xyzs = self.get_posed_pc(gaussians, joint_angle)
+
+        # [수정] 점이 하나도 없으면 더미(0) 좌표를 반환하여 에러 방지
+        if xyzs.shape[0] == 0:
+            import numpy as np
+            return np.zeros(3), np.zeros(3)
+
         mn, mx = xyzs.amin(0), xyzs.amax(0)
         return mn.detach().cpu().numpy(), mx.detach().cpu().numpy()
     

@@ -30,12 +30,23 @@ class TSDFVolume:
         # Define voxel volume parameters
         self._vol_bnds = vol_bnds
         self._voxel_size = float(voxel_size)
+        # [수정] voxel_size가 0이거나 음수면 기본값으로 안전하게 설정
+        if self._voxel_size <= 0:
+            self._voxel_size = 0.001
+
         self._trunc_margin = 4 * self._voxel_size  # truncation on SDF
         self._color_const = 256 * 256
 
+        # [수정] Adjust volume bounds and ensure C-order contiguous
+        # 차원 계산 시 NaN/Inf 발생 방지 및 음수 방지 로직 추가
+        dim_float = (self._vol_bnds[:, 1] - self._vol_bnds[:, 0]) / self._voxel_size
+        dim_float[np.isnan(dim_float)] = 0  # NaN 제거
+        dim_float[dim_float < 0] = 0  # 음수 제거
+        self._vol_dim = np.ceil(dim_float).copy(order='C').astype(int)
+
         # Adjust volume bounds and ensure C-order contiguous
-        self._vol_dim = np.ceil(
-            (self._vol_bnds[:, 1]-self._vol_bnds[:, 0])/self._voxel_size).copy(order='C').astype(int)
+        # self._vol_dim = np.ceil(
+        #     (self._vol_bnds[:, 1]-self._vol_bnds[:, 0])/self._voxel_size).copy(order='C').astype(int)
         self._vol_bnds[:, 1] = self._vol_bnds[:, 0] + \
             self._vol_dim*self._voxel_size
         self._vol_origin = self._vol_bnds[:, 0].copy(
@@ -48,6 +59,10 @@ class TSDFVolume:
         self._color_vol_cpu = np.zeros(self._vol_dim).astype(np.float32)
 
         self.gpu_mode = use_gpu and FUSION_GPU_MODE
+
+        # [추가] 볼륨이 비어있으면 GPU 모드를 강제로 끕니다 (에러 방지)
+        if np.prod(self._vol_dim) == 0:
+            self.gpu_mode = False
 
         # Copy voxel volumes to GPU
         if self.gpu_mode:
@@ -346,14 +361,30 @@ class TSDFVolume:
         """
         tsdf_vol, color_vol = self.get_volume()
 
-        # Marching cubes
-        verts, faces, norms, vals = measure.marching_cubes(
-            tsdf_vol, level=0)
+        # [수정] Marching Cubes 실행 전 볼륨 크기 검사
+        # 볼륨의 어느 한 차원이라도 2보다 작으면 marching_cubes가 불가능함
+        if np.any(np.array(tsdf_vol.shape) < 2):
+            # print("Warning: TSDF Volume is too small for marching cubes. Returning empty mesh.")
+            return np.zeros((0, 3)), np.zeros((0, 3)), np.zeros((0, 3)), np.zeros((0, 3))
+
+        try:
+            # Marching cubes
+            verts, faces, norms, vals =     measure.marching_cubes(
+                tsdf_vol, level=0)
+        except ValueError:
+            # "Input array must be at least 2x2x2" 등의 에러 발생 시 빈 메쉬 반환
+            return np.zeros((0, 3)), np.zeros((0, 3)), np.zeros((0, 3)), np.zeros((0, 3))
+
         verts_ind = np.round(verts).astype(int)
         # voxel grid coordinates to world coordinates
         verts = verts*self._voxel_size+self._vol_origin
 
         # Get vertex colors
+        # 인덱스 범위 초과 방지를 위한 클리핑 (가끔 marching cubes 결과가 경계에 걸칠 때 대비)
+        verts_ind[:, 0] = np.clip(verts_ind[:, 0], 0, color_vol.shape[0]-1)
+        verts_ind[:, 1] = np.clip(verts_ind[:, 1], 0, color_vol.shape[1]-1)
+        verts_ind[:, 2] = np.clip(verts_ind[:, 2], 0, color_vol.shape[2]-1)
+
         rgb_vals = color_vol[verts_ind[:, 0], verts_ind[:, 1], verts_ind[:, 2]]
         colors_b = np.floor(rgb_vals/self._color_const)
         colors_g = np.floor((rgb_vals-colors_b*self._color_const)/256)

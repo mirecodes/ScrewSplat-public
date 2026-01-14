@@ -43,22 +43,125 @@ storage-3:
   model_id: 45503
   scale: 0.25
 
-# Custom
-toilet:
-  model_id: 102621
-  scale: 0.4
-  joint_indices: [0, 1, 2, 3]
-  joint_limits: [[0, 1.741], [0, 1.048], [0, 0.524], [0, 0.1] ]
-
-# Custom
+# Static
+## 1. Toilet
+#toilet:
+#  model_id: 102621
+#  scale: 0.4
+#  joint_indices: [0, 1, 2, 3]
+#  joint_limits: [[0, 1.741], [0, 1.048], [0, 0.524], [0, 0.1] ]
+#
+## 2. Faucet
 #faucet:
 #  model_id: 167
-#  scale: 0.4
+#  scale: 1.0
 #  joint_indices: [ 0, 1, 2 ]
-#  joint_limits: [ [ 0, 3.141 ], [ 0, 3.141 ], [ 0, 3.141 ] ]
+#  joint_limits: [ [ 0, 0 ], [ 0, 0], [ 0, 0] ]
+#
+## 3. Kettle
+#kettle:
+#  model_id: 102738
+#  scale: 0.2
+#  joint_indices: [ 0, 1]
+#  joint_limits: [ [ 0, 0.1 ], [ -1.571, 1.571 ]]
+#
+## 4. Folding Chair
+#folding_chair:
+#  model_id: 100557
+#  scale: 1.0
+#  joint_indices: [0, 1]
+#  joint_limits: [[0, 0], [0, 0]]
+#
+## 5. Cardboard box
+#cardboard_box:
+#  model_id: 100154
+#  scale: 1.0
+#  joint_indices: [0, 1, 2, 3]
+#  joint_limits: [[0, 0], [0, 0], [0, 0], [0, 0]]
+#
+## 6. Vault
+#vault:
+#  model_id: 101594
+#  scale: 1.0
+#  joint_indices: [0, 1]
+#  joint_limits: [[1.047, 1.047], [0, 0]]
+#
+## 7. Fridge
+#fridge:
+#  model_id: 10655
+#  scale: 1.0
+#  joint_indices: [0, 1]
+#  joint_limits: [[0.785, 0.785], [0.785, 0.785]]
+#
+## 8. Bucket
+#bucket:
+#  model_id: 100460
+#  scale: 1.0
+#  joint_indices: [0]
+#  joint_limits: [[1.571, 1.571]]
+#
+## 9. Scissors
+#scissors:
+#  model_id: 10537
+#  scale: 1.0
+#  joint_indices: [0]
+#  joint_limits: [[0, 0]]
+#
+## 10. Lamp
+#lamp:
+#  model_id: 14372
+#  scale: 1.0
+#  joint_indices: [0, 1, 2]
+#  joint_limits: [[0, 0], [0, 0], [0,0]]
+#
 
+# Mobility
+# 1. Toilet
+toilet:
+  model_id: 102621
+  scale: 1.0
+
+# 2. Faucet
 faucet:
   model_id: 167
   scale: 1.0
-  joint_indices: [ 0, 1, 2 ]
-  joint_limits: [ [ 0, 0 ], [ 0, 0], [ 0, 0] ]
+
+# 3. Kettle
+kettle:
+  model_id: 102738
+  scale: 1.0
+
+# 4. Folding Chair
+folding_chair:
+  model_id: 100557
+  scale: 1.0
+
+# 5. Cardboard box
+cardboard_box:
+  model_id: 100154
+  scale: 1.0
+
+# 6. Vault
+vault:
+  model_id: 101594
+  scale: 1.0
+
+# 7. Fridge
+fridge:
+  model_id: 10655
+  scale: 1.0
+
+# 8. Bucket
+bucket:
+  model_id: 100460
+  scale: 1.0
+
+# 9. Scissors
+scissors:
+  model_id: 10537
+  scale: 1.0
+
+# 10. Lamp
+lamp:
+  model_id: 14372
+  scale: 1.0
