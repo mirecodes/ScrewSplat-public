@@ -15,6 +15,7 @@ __pycache__/
 
 # Generated Media
 *.mp4
+*.png
 
 # Environment & System
 .env
