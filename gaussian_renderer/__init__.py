@@ -26,15 +26,29 @@ def render_with_screw(viewpoint_camera,
     tanfovy = math.tan(viewpoint_camera.FoVy * 0.5)
     focal_length_x = viewpoint_camera.image_width / (2 * tanfovx)
     focal_length_y = viewpoint_camera.image_height / (2 * tanfovy)
+    
+    # Use cx and cy from the camera object if available, otherwise calculate center
+    if hasattr(viewpoint_camera, 'cx') and hasattr(viewpoint_camera, 'cy'):
+        cx = viewpoint_camera.cx
+        cy = viewpoint_camera.cy
+    else:
+        cx = viewpoint_camera.image_width / 2.0
+        cy = viewpoint_camera.image_height / 2.0
+
     K = torch.tensor(
         [
-            [focal_length_x, 0, viewpoint_camera.cx],
-            [0, focal_length_y, viewpoint_camera.cy],
+            [focal_length_x, 0, cx],
+            [0, focal_length_y, cy],
             [0, 0, 1],
         ],
         device="cuda",
     ).float()
-    art_idx = viewpoint_camera.art_idx
+    
+    # Handle art_idx safely
+    if hasattr(viewpoint_camera, 'art_idx'):
+        art_idx = viewpoint_camera.art_idx
+    else:
+        art_idx = 0
 
     # get gaussian params
     means3D = pc.get_xyz # [N, 3]
@@ -180,10 +194,19 @@ def render(viewpoint_camera,
     tanfovy = math.tan(viewpoint_camera.FoVy * 0.5)
     focal_length_x = viewpoint_camera.image_width / (2 * tanfovx)
     focal_length_y = viewpoint_camera.image_height / (2 * tanfovy)
+    
+    # Use cx and cy from the camera object if available, otherwise calculate center
+    if hasattr(viewpoint_camera, 'cx') and hasattr(viewpoint_camera, 'cy'):
+        cx = viewpoint_camera.cx
+        cy = viewpoint_camera.cy
+    else:
+        cx = viewpoint_camera.image_width / 2.0
+        cy = viewpoint_camera.image_height / 2.0
+
     K = torch.tensor(
         [
-            [focal_length_x, 0, viewpoint_camera.cx],
-            [0, focal_length_y, viewpoint_camera.cy],
+            [focal_length_x, 0, cx],
+            [0, focal_length_y, cy],
             [0, 0, 1],
         ],
         device="cuda",
@@ -247,4 +270,3 @@ def render(viewpoint_camera,
         "viewspace_points": info["means2d"],
         "visibility_filter" : radii > 0,
         "radii": radii}
-

@@ -1,14 +1,14 @@
 # object information
 # Choose from: refrigerator, laptop, oven, scissor, stapler, usb, washer,
 #              knife, storage, storage-2, refrigerator-2, storage-3
-object_classes: [folding_chair, cardboard_box, vault, fridge, bucket, scissors, lamp]   # List of object class names to render
+object_classes: [microwave, bucket, fan, globe, trashcan, usb]   # List of object class names to render
 
 # camera information
 camera_info:
   view_name: full_48        # Name of predefined camera view configuration
   radius: 4.0               # Distance from the camera to the object center (default = 1.0)
   num_phi: 4                # Number of vertical angles (elevation samples)
-  phi_range: [10.0, 60.0]   # Range of elevation angles (in degrees)
+  phi_range: [15.0, 60.0]   # Range of elevation angles (in degrees)
   num_theta: 12             # Number of horizontal angles (azimuth samples)
   theta_range: [-180.0, 180.0] # Range of azimuth angles (in degrees)
 

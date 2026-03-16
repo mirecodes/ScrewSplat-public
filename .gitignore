@@ -1,4 +1,5 @@
 .vscode
+.idea
 
 # datasets
 /datasets
@@ -6,6 +7,7 @@
 # intermediates
 /output
 /temp
+/temp_custom
 
 # Python
 __pycache__/

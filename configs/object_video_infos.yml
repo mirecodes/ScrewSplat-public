@@ -1,64 +1,35 @@
-foldingchair:
-  model_id: 102255
-  scale: 0.26
-refrigerator:
-  model_id: 10905
-  scale: 0.25
-laptop:
-  model_id: 10211
-  scale: 0.25
-oven:
-  model_id: 101917
-  scale: 0.23
-scissor:
-  model_id: 11100
-  scale: 0.25
-stapler:
-  model_id: 103111
-  scale: 0.20
-  joint_indices: [1]
-usb:
-  model_id: 100109
-  scale: 0.25
-  joint_limits: [-0.8, 0.8]
-washer:
-  model_id: 103776
-  scale: 0.20
-  joint_indices: [0]
-  shadow_on: True
-knife:
-  model_id: 101085
-  scale: 0.19
-storage:
-  model_id: 45135
-  scale: 0.20
-  joint_indices: [0]
-storage-2:
-  model_id: 47254
-  scale: 0.22
-refrigerator-2:
-  model_id: 10489
-  scale: 0.25
-storage-3:
-  model_id: 45503
-  scale: 0.25
-
-# Custom
-# 1
-toilet:
-  model_id: 102621
-  scale: 1.00
-  joint_indices: [0, 1, 2, 3]
-  joint_limits: [[0, 1.571], [0, 1.048], [0, 0.524], [0, 0.1]]
-# 2 faucet
-faucet:
-  model_id: 167
+## Mobility
+# 1. Microwave
+microwave:
+  model_id: 7310
   scale: 1.0
-  joint_indices: [ 0, 1, 2 ]
-  joint_limits: [ [ 0, 3.141 ], [ 0, 3.141 ], [ 0, 3.141 ] ]
-# 3 kettle
-kettle:
-  model_id: 102738
-  scale: 0.4
-  joint_indices: [ 0, 1 ]
-  joint_limits: [ [ 0, 0.1 ], [ -1.571, 1.571] ]
+
+# 2. Bucket
+bucket:
+  model_id: 102352
+  scale: 1.0
+
+# 3. Trashcan
+trashcan:
+  model_id: 11818
+  scale: 1.0
+
+# 4. Fan
+fan:
+  model_id: 101375
+  scale: 1.0
+
+# 5. Globe
+globe:
+  model_id: 100736
+  scale: 1.0
+
+# 6. USB
+usb:
+  model_id: 100061
+  scale: 1.0
+
+# 7. USB
+vault:
+  model_id: 100061
+  scale: 1.0

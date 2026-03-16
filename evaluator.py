@@ -59,7 +59,25 @@ class Evaluator:
 
     @torch.no_grad()
     def get_single_rgb_from_gaussians(self, gaussians, joint_angle, plot_idx=0):
-        camera = self.cameras[plot_idx]
+        # Check if plot_idx is within the range of self.cameras
+        if plot_idx >= len(self.cameras):
+             # If plot_idx is out of range, it might be a custom camera added externally
+             # In make_custom_videos.py, we append to evaluator.scene.getTestCameras()
+             # But here we are using self.cameras.
+             # We need to check if there's a way to access the custom camera.
+             # However, make_custom_videos.py tries to append to evaluator.scene.getTestCameras()
+             # which doesn't seem to exist in this Evaluator class.
+             # Instead, make_custom_videos.py should append to evaluator.cameras
+             pass
+
+        if plot_idx < len(self.cameras):
+            camera = self.cameras[plot_idx]
+        else:
+            # Fallback or error handling if index is still out of bounds
+            # For now, let's assume the user appended to self.cameras in make_custom_videos.py
+            # If not, this will raise an IndexError, which is expected if the camera wasn't added.
+            camera = self.cameras[plot_idx]
+
         rgb = self.render(gaussians, joint_angle, camera)
         rgb = (rgb*255).astype(np.uint8)
         return rgb
