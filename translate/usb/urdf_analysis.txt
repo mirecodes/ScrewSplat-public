@@ -1,0 +1,19 @@
+Loading Evaluator for Model: output/partnet_mobility_blender/usb/100061/sequential_steps_5_full_48_0.002/14d1be97-e
+
+==================================================
+🔩 ScrewSplat Model Analysis: 1 Screws Detected for usb
+==================================================
+
+[ Link 0 ] Base Link (Static Part)
+    • Center of BBox: [ 0.1494 -0.0183  0.0018]
+    • Points Count:   10898
+
+----------------------------------------
+[ Joint 1 ]: connecting Link 0 to Link 1
+    • Type:   Prismatic
+    • Axis:   [-1.e+00  1.e-04 -1.e-04]
+    • Origin: [ undefined ] (Pure Translation)
+
+[ Link 1 ] (Driven by Joint 1)
+    • Center of BBox: [ 0.1186  0.0035 -0.0064]
+    • Points Count:   8786
