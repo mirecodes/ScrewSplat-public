@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<robot name="trashcan">
+  <link name="link_0">
+  </link>
+  <joint name="joint_1" type="prismatic">
+    <parent link="link_0"/>
+    <child link="link_1"/>
+    <origin xyz="0.0000 0.0000 0.0000" rpy="0 0 0"/>
+    <axis xyz="-0.0013 0.0004 -1.0000"/>
+    <limit lower="-0.0313" upper="0.0333" effort="10.0" velocity="1.0"/>
+  </joint>
+  <link name="link_1">
+  </link>
+  <joint name="joint_2" type="prismatic">
+    <parent link="link_0"/>
+    <child link="link_2"/>
+    <origin xyz="0.0000 0.0000 0.0000" rpy="0 0 0"/>
+    <axis xyz="0.0020 0.0010 1.0000"/>
+    <limit lower="-0.0331" upper="0.0307" effort="10.0" velocity="1.0"/>
+  </joint>
+  <link name="link_2">
+  </link>
+  <joint name="joint_3" type="prismatic">
+    <parent link="link_0"/>
+    <child link="link_3"/>
+    <origin xyz="0.0000 0.0000 0.0000" rpy="0 0 0"/>
+    <axis xyz="-0.0012 -0.0011 -1.0000"/>
+    <limit lower="-0.0316" upper="0.0328" effort="10.0" velocity="1.0"/>
+  </joint>
+  <link name="link_3">
+  </link>
+</robot>

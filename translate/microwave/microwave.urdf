@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<robot name="microwave">
+  <link name="link_0">
+  </link>
+  <joint name="joint_1" type="revolute">
+    <parent link="link_0"/>
+    <child link="link_1"/>
+    <origin xyz="0.1202 -0.1241 0.0077" rpy="0 0 0"/>
+    <axis xyz="0.0087 -0.0535 -0.9985"/>
+    <limit lower="-1.1907" upper="0.0296" effort="10.0" velocity="1.0"/>
+  </joint>
+  <link name="link_1">
+  </link>
+  <joint name="joint_2" type="revolute">
+    <parent link="link_0"/>
+    <child link="link_2"/>
+    <origin xyz="-0.4928 0.5671 0.0499" rpy="0 0 0"/>
+    <axis xyz="0.1320 0.0275 0.9909"/>
+    <limit lower="-0.3506" upper="-0.0008" effort="10.0" velocity="1.0"/>
+  </joint>
+  <link name="link_2">
+  </link>
+  <joint name="joint_3" type="revolute">
+    <parent link="link_0"/>
+    <child link="link_3"/>
+    <origin xyz="1.4587 -0.2986 -0.7730" rpy="0 0 0"/>
+    <axis xyz="0.3587 0.8688 0.3414"/>
+    <limit lower="-0.7148" upper="0.0656" effort="10.0" velocity="1.0"/>
+  </joint>
+  <link name="link_3">
+  </link>
+</robot>

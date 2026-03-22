@@ -1,35 +1,52 @@
-## Mobility
-# 1. Microwave
+# Cat 1
+# A1. Microwave
 microwave:
   model_id: 7310
   scale: 1.0
-
-# 2. Bucket
+# A2. Bucket
 bucket:
   model_id: 102352
   scale: 1.0
-
-# 3. Trashcan
+# A3. Trashcan
 trashcan:
   model_id: 11818
   scale: 1.0
-
-# 4. Fan
+# A4. Fan
 fan:
   model_id: 101375
   scale: 1.0
-
-# 5. Globe
+# A5. Globe
 globe:
   model_id: 100736
   scale: 1.0
-
-# 6. USB
+# A6. USB
 usb:
   model_id: 100061
   scale: 1.0
 
-# 7. USB
-vault:
-  model_id: 100061
+# Cat 2
+# B1. Toilet
+toilet:
+  model_id: 102621
   scale: 1.0
+# B2. Faucet
+faucet:
+  model_id: 167
+  scale: 1.0
+# B3. Folding Chair
+folding_chair:
+  model_id: 100557
+  scale: 1.0
+# B4. Box
+box:
+  model_id: 100162
+  scale: 1.0
+# B5. Refrigerator
+refrigerator:
+  model_id: 10655
+  scale: 1.0
+# B6. Toaster
+toaster:
+  model_id: 103482
+  scale: 1.0
+

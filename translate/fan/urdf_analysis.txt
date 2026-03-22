@@ -1,0 +1,19 @@
+Loading Evaluator for Model: output/partnet_mobility_blender/fan/101375/sequential_steps_5_full_48_0.002/909667e2-4
+
+==================================================
+🔩 ScrewSplat Model Analysis: 1 Screws Detected for fan
+==================================================
+
+[ Link 0 ] Base Link (Static Part)
+    • Center of BBox: [ 0.0194 -0.0693  0.0178]
+    • Points Count:   4127
+
+----------------------------------------
+[ Joint 1 ]: connecting Link 0 to Link 1 (Confidence: 0.7743)
+    • Type:   Revolute
+    • Axis:   [ 7.e-04  2.e-04 -1.e+00]
+    • Origin: [ 0.0126 -0.0067  0.    ]
+
+[ Link 1 ] (Driven by Joint 1)
+    • Center of BBox: [ 0.0002 -0.0712  0.0144]
+    • Points Count:   25218

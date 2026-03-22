@@ -1,0 +1,69 @@
+Loading Evaluator for Model: output/partnet_mobility_blender/globe/100736/sequential_steps_5_full_48_0.002/9ed37e41-1/
+
+==================================================
+🔩 ScrewSplat Model Analysis: 6 Screws Detected for globe
+==================================================
+
+[ Link 0 ] Base Link (Static Part)
+    • Center of BBox: [-1.8229 -1.3488  0.4126]
+    • Points Count:   2638
+
+----------------------------------------
+[ Joint 1 ]: connecting Link 0 to Link 1
+    • Type:   Revolute
+    • Axis:   [-0.215  -0.0822  0.9731]
+    • Origin: [-0.0022 -0.0724 -0.0066]
+
+[ Link 1 ] (Driven by Joint 1)
+    • Center of BBox: [-1.8582e+00 -2.0000e-04  6.1420e-01]
+    • Points Count:   412
+
+----------------------------------------
+[ Joint 2 ]: connecting Link 0 to Link 2
+    • Type:   Revolute
+    • Axis:   [0.4222 0.4925 0.761 ]
+    • Origin: [-0.0676  0.0795 -0.0139]
+
+[ Link 2 ] (Driven by Joint 2)
+    • Center of BBox: [-1.8146 -1.0915  0.5822]
+    • Points Count:   514
+
+----------------------------------------
+[ Joint 3 ]: connecting Link 0 to Link 3
+    • Type:   Revolute
+    • Axis:   [-0.1373  0.2146 -0.967 ]
+    • Origin: [-0.0132 -0.0178 -0.0021]
+
+[ Link 3 ] (Driven by Joint 3)
+    • Center of BBox: [-1.7478  0.0154  0.6316]
+    • Points Count:   458
+
+----------------------------------------
+[ Joint 4 ]: connecting Link 0 to Link 4
+    • Type:   Revolute
+    • Axis:   [-0.4845  0.5918  0.6442]
+    • Origin: [-0.1151 -0.1724  0.0718]
+
+[ Link 4 ] (Driven by Joint 4)
+    • Center of BBox: [-1.7328 -0.0364  0.6496]
+    • Points Count:   255
+
+----------------------------------------
+[ Joint 5 ]: connecting Link 0 to Link 5
+    • Type:   Revolute
+    • Axis:   [ 0.0743 -0.4038 -0.9118]
+    • Origin: [-0.0006 -0.0352  0.0156]
+
+[ Link 5 ] (Driven by Joint 5)
+    • Center of BBox: [-1.8879 -1.254   0.3509]
+    • Points Count:   304
+
+----------------------------------------
+[ Joint 6 ]: connecting Link 0 to Link 6
+    • Type:   Prismatic
+    • Axis:   [-0.6079  0.6518  0.4535]
+    • Origin: [ undefined ] (Pure Translation)
+
+[ Link 6 ] (Driven by Joint 6)
+    • Center of BBox: [-1.9196 -1.4277  0.4258]
+    • Points Count:   303

@@ -1,88 +1,42 @@
-## Static
-## 1. Microwave
-#microwave:
-#  model_id: 7310
-#  scale: 1.0
-#  joint_indices: [0]
-#  joint_limits: [[45, 45], ]
-#
-## 2. Bucket
-#bucket:
-#  model_id: 102352
-#  scale: 1.0
-#  joint_indices: [0]
-#  joint_limits: [[90, 90], ]
-#
-## 3. Trashcan
-#trashcan:
-#  model_id: 11818
-#  scale: 1.0
-#  joint_indices: [ 0 ]
-#  joint_limits: [ [ 0, 0 ], ]
-#
-## 4. Fan
-#fan:
-#  model_id: 101375
-#  scale: 1.0
-#  joint_indices: [ 0 ]
-#  joint_limits: [ [ 0, 0 ], ]
-#
-## 5. Globe
-#globe:
-#  model_id: 100736
-#  scale: 1.0
-#  joint_indices: [ 0 ]
-#  joint_limits: [ [ 0, 0 ], ]
-#
-## 6. USB
-#usb:
-#  model_id: 100061
-#  scale: 1.0
-#  joint_indices: [0]
-#  joint_limits: [[-0.132, -0.132], ]
-
-
-
-
-# Mobility
-# A1. Microwave
-microwave:
-  model_id: 7310
-  scale: 1.0
-
-# A2. Bucket
-bucket:
-  model_id: 102352
-  scale: 1.0
-
-# A3. Trashcan
-trashcan:
-  model_id: 11818
-  scale: 1.0
-
-# A4. Fan
-fan:
-  model_id: 101375
-  scale: 1.0
-
-# A5. Globe
-globe:
-  model_id: 100736
-  scale: 1.0
-
-# A6. USB
-usb:
-  model_id: 100061
-  scale: 1.0
-
+# Cat 2 Static
 # B1. Toilet
+toilet:
+  model_id: 102621
+  scale: 1.0
+  joint_names: ['joint_0', 'joint_1', 'joint_2', 'joint_3']
+  joint_limits: [[0, 0], [60, 60], [30, 30], [0, 0]]
 
 # B2. Faucet
+faucet:
+ model_id: 167
+ scale: 1.0
+ joint_names: ['joint_0', 'joint_1', 'joint_3']
+ joint_limits: [[0, 0], [0, 0], [0, 0] ]
 
 # B3. Folding Chair
+folding_chair:
+  model_id: 100557
+  scale: 1.0
+  joint_names: ['joint_0', 'joint_2' ]
+  joint_limits: [[ 0, 0 ], [0, 0]]
 
 # B4. Box
+box:
+  model_id: 100162
+  scale: 1.0
+  joint_names: ['joint_0', 'joint_1', 'joint_2', 'joint_3']
+  joint_limits: [ [ 0, 0 ], [ 0, 0 ], [ 0, 0 ], [ 0, 0 ] ]
 
 # B5. Refrigerator
+refrigerator:
+  model_id: 10655
+  scale: 1.0
+  joint_names: ['joint_1', 'joint_2']
+  joint_limits: [ [45, 45], [45, 45] ]
 
 # B6. Toaster
+toaster:
+  model_id: 103482
+  scale: 1.0
+  joint_names: ['joint_0', 'joint_1']
+  joint_limits: [[0, 0], [0, 0]]

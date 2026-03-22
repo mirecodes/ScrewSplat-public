@@ -60,8 +60,10 @@ if __name__ == '__main__':
 		category = object_class.split('-')[0]
 		model_id = object_infos[object_class].model_id
 		scale = object_infos[object_class].scale
-		joint_indices = object_infos[object_class].get('joint_indices', None)
+		joint_names = object_infos[object_class].get('joint_names', None)
 		joint_limits = object_infos[object_class].get('joint_limits', None)
+		if joint_limits is not None:
+			joint_limits = (np.array(joint_limits) / 180 * np.pi).tolist()
 		shadow_on = object_infos[object_class].get('shadow_on', False)
 
 		# load articulated object
@@ -72,7 +74,7 @@ if __name__ == '__main__':
 		articulated_object.generate_mobility_dataset(
 			camera_poses, 
 			steps=steps, offset=offset,
-			joint_indices=joint_indices,
+			joint_names=joint_names,
 			joint_custom_limits=joint_limits,
 			shadow_on=shadow_on,
 			mode=mode, split_list=split_list, view_name=view_name, verbose=args.verbose)

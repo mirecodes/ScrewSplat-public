@@ -1,0 +1,39 @@
+Loading Evaluator for Model: output/partnet_mobility_blender/microwave/7310/sequential_steps_5_full_48_0.002/51a4b9a4-e/
+
+==================================================
+🔩 ScrewSplat Model Analysis: 3 Screws Detected for microwave
+==================================================
+
+[ Link 0 ] Base Link (Static Part)
+    • Center of BBox: [ 0.0235  0.0125 -0.0197]
+    • Points Count:   3193
+
+----------------------------------------
+[ Joint 1 ]: connecting Link 0 to Link 1 (Confidence: 0.5415)
+    • Type:   Revolute
+    • Axis:   [ 0.0087 -0.0535 -0.9985]
+    • Origin: [ 0.1202 -0.1241  0.0077]
+
+[ Link 1 ] (Driven by Joint 1)
+    • Center of BBox: [0.0291 0.013  0.0005]
+    • Points Count:   362
+
+----------------------------------------
+[ Joint 2 ]: connecting Link 0 to Link 2 (Confidence: 0.3462)
+    • Type:   Revolute
+    • Axis:   [0.132  0.0275 0.9909]
+    • Origin: [-0.4928  0.5671  0.0499]
+
+[ Link 2 ] (Driven by Joint 2)
+    • Center of BBox: [-0.4906  0.0052  0.0175]
+    • Points Count:   218
+
+----------------------------------------
+[ Joint 3 ]: connecting Link 0 to Link 3 (Confidence: 0.3563)
+    • Type:   Revolute
+    • Axis:   [0.3587 0.8688 0.3414]
+    • Origin: [ 1.4587 -0.2986 -0.773 ]
+
+[ Link 3 ] (Driven by Joint 3)
+    • Center of BBox: [-0.0447  0.2566 -0.0899]
+    • Points Count:   559

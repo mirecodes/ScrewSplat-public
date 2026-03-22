@@ -1,0 +1,59 @@
+<?xml version="1.0" ?>
+<robot name="globe">
+  <link name="link_0">
+  </link>
+  <joint name="joint_1" type="revolute">
+    <parent link="link_0"/>
+    <child link="link_1"/>
+    <origin xyz="-0.0022 -0.0724 -0.0066" rpy="0 0 0"/>
+    <axis xyz="-0.2150 -0.0822 0.9731"/>
+    <limit lower="-0.5490" upper="0.0456" effort="10.0" velocity="1.0"/>
+  </joint>
+  <link name="link_1">
+  </link>
+  <joint name="joint_2" type="revolute">
+    <parent link="link_0"/>
+    <child link="link_2"/>
+    <origin xyz="-0.0676 0.0795 -0.0139" rpy="0 0 0"/>
+    <axis xyz="0.4222 0.4925 0.7610"/>
+    <limit lower="-0.0130" upper="0.7631" effort="10.0" velocity="1.0"/>
+  </joint>
+  <link name="link_2">
+  </link>
+  <joint name="joint_3" type="revolute">
+    <parent link="link_0"/>
+    <child link="link_3"/>
+    <origin xyz="-0.0132 -0.0178 -0.0021" rpy="0 0 0"/>
+    <axis xyz="-0.1373 0.2146 -0.9670"/>
+    <limit lower="-0.0737" upper="0.8346" effort="10.0" velocity="1.0"/>
+  </joint>
+  <link name="link_3">
+  </link>
+  <joint name="joint_4" type="revolute">
+    <parent link="link_0"/>
+    <child link="link_4"/>
+    <origin xyz="-0.1151 -0.1724 0.0718" rpy="0 0 0"/>
+    <axis xyz="-0.4845 0.5918 0.6442"/>
+    <limit lower="-0.6829" upper="0.0359" effort="10.0" velocity="1.0"/>
+  </joint>
+  <link name="link_4">
+  </link>
+  <joint name="joint_5" type="revolute">
+    <parent link="link_0"/>
+    <child link="link_5"/>
+    <origin xyz="-0.0006 -0.0352 0.0156" rpy="0 0 0"/>
+    <axis xyz="0.0743 -0.4038 -0.9118"/>
+    <limit lower="-0.3331" upper="0.0448" effort="10.0" velocity="1.0"/>
+  </joint>
+  <link name="link_5">
+  </link>
+  <joint name="joint_6" type="prismatic">
+    <parent link="link_0"/>
+    <child link="link_6"/>
+    <origin xyz="0.0000 0.0000 0.0000" rpy="0 0 0"/>
+    <axis xyz="-0.6079 0.6518 0.4535"/>
+    <limit lower="-0.0156" upper="0.0381" effort="10.0" velocity="1.0"/>
+  </joint>
+  <link name="link_6">
+  </link>
+</robot>

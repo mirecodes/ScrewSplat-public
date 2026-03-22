@@ -1,0 +1,9 @@
+Loading Evaluator for Model: output/partnet_mobility_blender/bucket/102352/sequential_steps_5_full_48_0.002/06375885-5
+
+==================================================
+🔩 ScrewSplat Model Analysis: 0 Screws Detected for bucket
+==================================================
+
+[ Link 0 ] Base Link (Static Part)
+    • Center of BBox: [ 0.0251 -0.0239  0.0767]
+    • Points Count:   13463

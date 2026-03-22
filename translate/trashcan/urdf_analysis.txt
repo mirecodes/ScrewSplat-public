@@ -1,0 +1,39 @@
+Loading Evaluator for Model: output/partnet_mobility_blender/trashcan/11818/sequential_steps_5_full_48_0.002/86a4104b-f
+
+==================================================
+🔩 ScrewSplat Model Analysis: 3 Screws Detected for trashcan
+==================================================
+
+[ Link 0 ] Base Link (Static Part)
+    • Center of BBox: [-0.0041  0.0261 -0.1707]
+    • Points Count:   1446
+
+----------------------------------------
+[ Joint 1 ]: connecting Link 0 to Link 1 (Confidence: 1.0000)
+    • Type:   Prismatic
+    • Axis:   [-1.3e-03  4.0e-04 -1.0e+00]
+    • Origin: [ undefined ] (Pure Translation)
+
+[ Link 1 ] (Driven by Joint 1)
+    • Center of BBox: [-0.0044  0.0252 -0.0344]
+    • Points Count:   755
+
+----------------------------------------
+[ Joint 2 ]: connecting Link 0 to Link 2 (Confidence: 0.1277)
+    • Type:   Prismatic
+    • Axis:   [0.002 0.001 1.   ]
+    • Origin: [ undefined ] (Pure Translation)
+
+[ Link 2 ] (Driven by Joint 2)
+    • Center of BBox: [-0.0039  0.0261 -0.035 ]
+    • Points Count:   494
+
+----------------------------------------
+[ Joint 3 ]: connecting Link 0 to Link 3 (Confidence: 0.9991)
+    • Type:   Prismatic
+    • Axis:   [-0.0012 -0.0011 -1.    ]
+    • Origin: [ undefined ] (Pure Translation)
+
+[ Link 3 ] (Driven by Joint 3)
+    • Center of BBox: [-0.0041  0.0254 -0.0537]
+    • Points Count:   861

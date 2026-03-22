@@ -1,7 +1,7 @@
 # object information
 # Choose from: refrigerator, laptop, oven, scissor, stapler, usb, washer,
 #              knife, storage, storage-2, refrigerator-2, storage-3
-object_classes: [microwave, bucket, trashcan, fan, globe, usb, ]   # List of object class names to render
+object_classes: [toilet, faucet, folding_chair, box, refrigerator, toaster]   # List of object class names to render
 
 # camera information
 camera_info:
