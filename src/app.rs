@@ -38,6 +38,7 @@ struct App {
     camera_buffer: Option<Buffer<CameraUniform>>,
     light_uniform: Option<LightUniform>,
     light_buffer: Option<Buffer<LightUniform>>,
+    depth_texture: Option<Texture>,
     bind_group: Option<wgpu::BindGroup>,
     
     last_render_time: std::time::Instant,
@@ -56,6 +57,7 @@ impl Default for App {
             camera_buffer: None,
             light_uniform: None,
             light_buffer: None,
+            depth_texture: None,
             bind_group: None,
             last_render_time: std::time::Instant::now(),
         }
@@ -118,6 +120,7 @@ impl ApplicationHandler for App {
             
             // Texture setup
             let texture = Texture::generate_atlas(&context.device, &context.queue);
+            let depth_texture = Texture::create_depth_texture(&context.device, &context.config, "depth_texture");
             
             // Bind Group
             let bind_group = context.device.create_bind_group(&wgpu::BindGroupDescriptor {
@@ -158,6 +161,7 @@ impl ApplicationHandler for App {
             self.camera_buffer = Some(camera_buffer);
             self.light_uniform = Some(light_uniform);
             self.light_buffer = Some(light_buffer);
+            self.depth_texture = Some(depth_texture);
             self.bind_group = Some(bind_group);
             self.last_render_time = std::time::Instant::now();
         }
@@ -176,6 +180,7 @@ impl ApplicationHandler for App {
             WindowEvent::Resized(physical_size) => {
                 if let Some(context) = &mut self.render_context {
                     context.resize(physical_size);
+                    self.depth_texture = Some(Texture::create_depth_texture(&context.device, &context.config, "depth_texture"));
                 }
             }
             WindowEvent::KeyboardInput { 
@@ -233,7 +238,14 @@ impl ApplicationHandler for App {
                                     },
                                     depth_slice: None,
                                 })],
-                                depth_stencil_attachment: None,
+                                depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
+                                    view: &self.depth_texture.as_ref().unwrap().view,
+                                    depth_ops: Some(wgpu::Operations {
+                                        load: wgpu::LoadOp::Clear(1.0),
+                                        store: wgpu::StoreOp::Store,
+                                    }),
+                                    stencil_ops: None,
+                                }),
                                 timestamp_writes: None,
                                 occlusion_query_set: None,
                                 multiview_mask: None,
