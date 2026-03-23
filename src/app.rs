@@ -12,6 +12,7 @@ use crate::entity::player::Player;
 use crate::entity::Entity;
 use crate::world::Chunk;
 use crate::world::World;
+use crate::render::light::LightUniform;
 use crate::mesh::builder::build_chunk_mesh;
 use crate::world::terrain::generate_varied_terrain;
 use winit::window::CursorGrabMode;
@@ -35,6 +36,8 @@ struct App {
     player: Option<Player>,
     camera_uniform: Option<CameraUniform>,
     camera_buffer: Option<Buffer<CameraUniform>>,
+    light_uniform: Option<LightUniform>,
+    light_buffer: Option<Buffer<LightUniform>>,
     bind_group: Option<wgpu::BindGroup>,
     
     last_render_time: std::time::Instant,
@@ -51,6 +54,8 @@ impl Default for App {
             player: None,
             camera_uniform: None,
             camera_buffer: None,
+            light_uniform: None,
+            light_buffer: None,
             bind_group: None,
             last_render_time: std::time::Instant::now(),
         }
@@ -80,7 +85,9 @@ impl ApplicationHandler for App {
                     let mut chunk = Chunk::new();
                     generate_varied_terrain(&mut chunk, cx, cz);
                     
-                    let mesh = build_chunk_mesh(&chunk, Vec3::new(cx as f32 * 16.0, 0.0, cz as f32 * 16.0));
+                    let mesh = build_chunk_mesh(&chunk, cx, cz, |x, y, z| {
+                        world.get_block_global(x, y, z)
+                    });
                     let v_buf = Buffer::new_vertex(&context.device, &mesh.vertices);
                     let i_buf = Buffer::<u32>::new_index(&context.device, &mesh.indices);
                     
@@ -101,6 +108,14 @@ impl ApplicationHandler for App {
             camera_uniform.update_view_proj(&player.camera, player.position, player.yaw, player.pitch);
             let camera_buffer = Buffer::new_uniform(&context.device, &[camera_uniform]);
             
+            // Light setup
+            let light_uniform = LightUniform::new(
+                [-0.5, -1.0, -0.3], // Direction
+                [1.0, 1.0, 1.0],    // Color
+                0.3                 // Ambient
+            );
+            let light_buffer = Buffer::new_uniform(&context.device, &[light_uniform]);
+            
             // Texture setup
             let texture = Texture::generate_atlas(&context.device, &context.queue);
             
@@ -120,6 +135,10 @@ impl ApplicationHandler for App {
                         binding: 2,
                         resource: wgpu::BindingResource::Sampler(&texture.sampler),
                     },
+                    wgpu::BindGroupEntry {
+                        binding: 3,
+                        resource: light_buffer.buffer.as_entire_binding(),
+                    },
                 ],
                 label: Some("Main Bind Group"),
             });
@@ -137,6 +156,8 @@ impl ApplicationHandler for App {
             self.player = Some(player);
             self.camera_uniform = Some(camera_uniform);
             self.camera_buffer = Some(camera_buffer);
+            self.light_uniform = Some(light_uniform);
+            self.light_buffer = Some(light_buffer);
             self.bind_group = Some(bind_group);
             self.last_render_time = std::time::Instant::now();
         }
@@ -225,8 +246,8 @@ impl ApplicationHandler for App {
 
                         if let (Some(world), Some(player), Some(uniform), Some(buf)) = (&mut self.world, &mut self.player, &mut self.camera_uniform, &self.camera_buffer) {
                             world.update(dt);
-                            player.update(dt);
-                            uniform.update_view_proj(&player.camera, player.position, player.yaw, player.pitch);
+                            player.update(dt, world);
+                            uniform.update_view_proj(&player.camera, player.get_eye_position(), player.yaw, player.pitch);
                             context.queue.write_buffer(&buf.buffer, 0, bytemuck::cast_slice(&[*uniform]));
                         }
 

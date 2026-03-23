@@ -7,7 +7,12 @@ pub struct Mesh {
     pub indices: Vec<u32>,
 }
 
-pub fn build_chunk_mesh(chunk: &Chunk, world_offset: glam::Vec3) -> Mesh {
+pub fn build_chunk_mesh(
+    chunk: &Chunk, 
+    chunk_x: i32, 
+    chunk_z: i32, 
+    get_block: impl Fn(i32, i32, i32) -> BlockType
+) -> Mesh {
     let mut vertices = Vec::new();
     let mut indices = Vec::new();
 
@@ -29,21 +34,17 @@ pub fn build_chunk_mesh(chunk: &Chunk, world_offset: glam::Vec3) -> Mesh {
                     ];
 
                     for (nx, ny, nz, face) in neighbors {
-                        let is_visible = if nx < 0 || ny < 0 || nz < 0 || 
-                            nx >= CHUNK_WIDTH as i32 || 
-                            ny >= CHUNK_HEIGHT as i32 || 
-                            nz >= CHUNK_DEPTH as i32 {
-                            true
-                        } else {
-                            if let Some(nblock) = chunk.get_block(nx as usize, ny as usize, nz as usize) {
-                                nblock.btype.is_transparent()
-                            } else {
-                                true
-                            }
+                        let is_visible = {
+                            let gx = chunk_x * CHUNK_WIDTH as i32 + nx;
+                            let gy = ny;
+                            let gz = chunk_z * CHUNK_DEPTH as i32 + nz;
+                            get_block(gx, gy, gz).is_transparent()
                         };
 
                         if is_visible {
-                            add_face(&mut vertices, &mut indices, x as f32 + world_offset.x, y as f32 + world_offset.y, z as f32 + world_offset.z, face, block.btype);
+                            let world_offset_x = chunk_x as f32 * CHUNK_WIDTH as f32;
+                            let world_offset_z = chunk_z as f32 * CHUNK_DEPTH as f32;
+                            add_face(&mut vertices, &mut indices, x as f32 + world_offset_x, y as f32, z as f32 + world_offset_z, face, block.btype);
                         }
                     }
                 }
