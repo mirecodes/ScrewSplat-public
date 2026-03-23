@@ -3,23 +3,62 @@ use crate::entity::Entity;
 pub mod block;
 pub mod chunk;
 pub mod terrain;
+pub mod storage;
 
 pub use chunk::Chunk;
 pub use block::BlockType;
 use glam::Vec3;
+use std::sync::mpsc::{self, Sender, Receiver};
+use std::collections::HashSet;
+use std::thread;
 
 pub struct World {
     pub chunks: HashMap<(i32, i32), Chunk>,
     pub entities: Vec<Box<dyn Entity>>,
+    pub render_distance: i32,
+    pub loading_chunks: HashSet<(i32, i32)>,
+    pub chunk_receiver: Receiver<(i32, i32, Chunk)>,
+    pub chunk_sender: Sender<(i32, i32, Chunk)>,
 }
 
 impl World {
     pub fn new() -> Self {
+        let (tx, rx) = mpsc::channel();
         Self {
             chunks: HashMap::new(),
             entities: Vec::new(),
+            render_distance: 8,
+            loading_chunks: HashSet::new(),
+            chunk_receiver: rx,
+            chunk_sender: tx,
         }
     }
+
+    pub fn request_chunk_load(&mut self, x: i32, z: i32) {
+        if self.loading_chunks.contains(&(x, z)) || self.chunks.contains_key(&(x, z)) {
+            return;
+        }
+
+        self.loading_chunks.insert((x, z));
+        let tx = self.chunk_sender.clone();
+        
+        thread::spawn(move || {
+            // First try loading from disk
+            let world_dir = "worlds/test_world"; // Hardcoded for now
+            match storage::load_chunk(world_dir, x, z) {
+                Ok(Some(chunk)) => {
+                    let _ = tx.send((x, z, chunk));
+                }
+                Ok(None) | Err(_) => {
+                    // Generate new chunk if not found or error
+                    let mut chunk = Chunk::new();
+                    terrain::generate_varied_terrain(&mut chunk, x, z);
+                    let _ = tx.send((x, z, chunk));
+                }
+            }
+        });
+    }
+
 
     pub fn update(&mut self, _dt: std::time::Duration) {
         // Entity updates are currently handled in App to avoid borrow checker issues 
@@ -32,6 +71,59 @@ impl World {
 
     pub fn get_chunk(&self, x: i32, z: i32) -> Option<&Chunk> {
         self.chunks.get(&(x, z))
+    }
+
+    pub fn update_chunks_around_player(&mut self, player_pos: Vec3) {
+        let px = (player_pos.x / 16.0).floor() as i32;
+        let pz = (player_pos.z / 16.0).floor() as i32;
+
+        let r = self.render_distance;
+        for x in (px - r)..(px + r) {
+            for z in (pz - r)..(pz + r) {
+                let dx = x - px;
+                let dz = z - pz;
+                if dx * dx + dz * dz <= r * r {
+                    if !self.chunks.contains_key(&(x, z)) && !self.loading_chunks.contains(&(x, z)) {
+                        self.request_chunk_load(x, z);
+                    }
+                }
+            }
+        }
+
+        // Unload far chunks
+        let mut to_remove = Vec::new();
+        let unload_r = r + 2;
+        for &pos in self.chunks.keys() {
+            let dx = pos.0 - px;
+            let dz = pos.1 - pz;
+            if dx * dx + dz * dz > unload_r * unload_r {
+                to_remove.push(pos);
+            }
+        }
+
+        for pos in to_remove {
+            if let Some(chunk) = self.chunks.remove(&pos) {
+                let _ = storage::save_chunk("worlds/test_world", pos.0, pos.1, &chunk);
+            }
+        }
+    }
+
+    pub fn is_area_loaded(&self, center_x: f32, center_z: f32, radius: i32) -> bool {
+        let px = (center_x / 16.0).floor() as i32;
+        let pz = (center_z / 16.0).floor() as i32;
+
+        for x in (px - radius)..=(px + radius) {
+            for z in (pz - radius)..=(pz + radius) {
+                let dx = x - px;
+                let dz = z - pz;
+                if dx * dx + dz * dz <= radius * radius {
+                    if !self.chunks.contains_key(&(x, z)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        true
     }
 
     pub fn get_block_global(&self, x: i32, y: i32, z: i32) -> BlockType {

@@ -57,8 +57,8 @@ impl RenderPipeline {
         let render_pipeline_layout =
             context.device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("Render Pipeline Layout"),
-                bind_group_layouts: &[Some(&bind_group_layout)],
-                immediate_size: 0,
+                bind_group_layouts: &[&bind_group_layout],
+                push_constant_ranges: &[],
             });
 
         let vertex_buffer_layout = crate::mesh::vertex::Vertex::desc();
@@ -93,8 +93,8 @@ impl RenderPipeline {
             },
             depth_stencil: Some(wgpu::DepthStencilState {
                 format: crate::render::texture::Texture::DEPTH_FORMAT,
-                depth_write_enabled: Some(true),
-                depth_compare: Some(wgpu::CompareFunction::Less),
+                depth_write_enabled: true,
+                depth_compare: wgpu::CompareFunction::Less,
                 stencil: wgpu::StencilState::default(),
                 bias: wgpu::DepthBiasState::default(),
             }),
@@ -103,10 +103,29 @@ impl RenderPipeline {
                 mask: !0,
                 alpha_to_coverage_enabled: false,
             },
-            multiview_mask: None,
+            multiview: None,
             cache: None,
         });
 
         Self { pipeline, bind_group_layout }
     }
 }
+
+pub struct ChunkRenderData {
+    pub vertex_buffer: crate::render::buffer::Buffer<crate::mesh::vertex::Vertex>,
+    pub index_buffer: crate::render::buffer::Buffer<u32>,
+    pub num_indices: u32,
+}
+
+impl ChunkRenderData {
+    pub fn new(context: &WgpuContext, mesh: &crate::mesh::builder::Mesh) -> Self {
+        let vertex_buffer = crate::render::buffer::Buffer::new_vertex(&context.device, &mesh.vertices);
+        let index_buffer = crate::render::buffer::Buffer::<u32>::new_index(&context.device, &mesh.indices);
+        Self {
+            vertex_buffer,
+            index_buffer,
+            num_indices: mesh.indices.len() as u32,
+        }
+    }
+}
+

@@ -1,18 +1,21 @@
 use super::block::{Block, BlockType};
+use serde::{Serialize, Deserialize};
 
 pub const CHUNK_WIDTH: usize = 16;
 pub const CHUNK_HEIGHT: usize = 256;
 pub const CHUNK_DEPTH: usize = 16;
 pub const CHUNK_VOLUME: usize = CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH;
 
+#[derive(Serialize, Deserialize)]
 pub struct Chunk {
-    pub blocks: Box<[Block; CHUNK_VOLUME]>,
+    pub blocks: Vec<Block>,
 }
+
 
 impl Default for Chunk {
     fn default() -> Self {
         Self {
-            blocks: Box::new([Block::new(BlockType::Air); CHUNK_VOLUME]),
+            blocks: vec![Block::new(BlockType::Air); CHUNK_VOLUME],
         }
     }
 }

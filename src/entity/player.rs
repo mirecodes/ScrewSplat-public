@@ -13,6 +13,7 @@ pub struct Player {
     pub controller: PlayerController,
     pub on_ground: bool,
     pub eye_height: f32,
+    pub is_spawned: bool,
 }
 
 impl Player {
@@ -26,6 +27,7 @@ impl Player {
             controller: PlayerController::new(4.0, 0.4),
             on_ground: false,
             eye_height: 1.6,
+            is_spawned: false,
         }
     }
 
@@ -49,6 +51,35 @@ impl Entity for Player {
         // Pitch limits
         let safe_pitch = std::f32::consts::FRAC_PI_2 - 0.01;
         self.pitch = self.pitch.clamp(-safe_pitch, safe_pitch);
+
+        // Wait for initial spawn area to load (radius 8 to match default render_distance, or 12 if preferred)
+        let spawn_radius = world.render_distance; 
+        if !self.is_spawned {
+            if world.is_area_loaded(self.position.x, self.position.z, spawn_radius) {
+                self.is_spawned = true;
+            } else {
+                self.velocity = Vec3::ZERO;
+                return; // Pause physics
+            }
+        }
+
+        // Additional safety: Pause physics if the chunks intersecting the player's AABB are not loaded
+        let half_w = 0.3;
+        let p_min = Vec3::new(self.position.x - half_w, self.position.y, self.position.z - half_w);
+        let p_max = Vec3::new(self.position.x + half_w, self.position.y + 1.8, self.position.z + half_w);
+        let cx_min = (p_min.x.floor() as i32).div_euclid(16);
+        let cx_max = (p_max.x.ceil() as i32).div_euclid(16);
+        let cz_min = (p_min.z.floor() as i32).div_euclid(16);
+        let cz_max = (p_max.z.ceil() as i32).div_euclid(16);
+        
+        for cx in cx_min..=cx_max {
+            for cz in cz_min..=cz_max {
+                if !world.chunks.contains_key(&(cx, cz)) {
+                    self.velocity = Vec3::ZERO;
+                    return;
+                }
+            }
+        }
 
         // Movement input
         let (yaw_sin, yaw_cos) = self.yaw.sin_cos();

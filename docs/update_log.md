@@ -38,5 +38,40 @@
 - `LightUniform` 및 법선 벡터(Normal)를 이용한 광원 시스템 구축.
 - 램버트 코사인 법칙을 적용하여 블록의 방향에 따른 입체적 음영 표현.
 
+### Step 4: Depth Buffer (Z-Buffer) 및 물리 보정
+- `Depth32Float` 포맷의 깊이 버퍼를 도입하여 렌더링 순서 오류 및 관통 문제 해결.
+- 플레이어 카메라 위치를 눈높이(Eye Level)로 조정하여 1인칭 시점 안정화.
+
+
+## [v0.3.0] - Phase 4 Completion
+
+동적 청크 관리와 파일 기반 세이브/로드 시스템 구축.
+
+### Step 1: Serialization & Compression
+- `serde`, `bincode`, `flate2`를 연동하여 청크 데이터를 바이너리로 압축 저장 및 로드 구현.
+- `Chunk` 구조체에 시리얼라이즈 필드 추가 및 데이터 변환 로직 마련.
+
+### Step 2: Dynamic Chunk Manager
+- 플레이어 주위 반경(Radius) 기반의 청크 로딩 알고리즘 구현.
+- 일정 거리를 벗어난 청크는 자동 언로드 및 디스크 저장 수행.
+- 최초 접속 시 주변 청크가 모두 로드될 때까지 플레이어의 물리 이동을 제한하여 초기 추락 방지.
+
+### Step 3: Background Processing (MPSC Threads)
+- 메인 렌더 루프 블로킹 방지를 위한 `std::sync::mpsc` 기반 비동기 청크 생성/로딩 스레드 구현.
+- 백그라운드에서 지형 생성이 완료되면 채널을 통해 메인 스레드로 전달하여 즉각 렌더링 반영.
+
+## [v0.4.0] - Phase 5 Completion
+
+Egui 기반 디버그 UI 및 시스템 리소스 모니터링 통합.
+
+### Step 1: Egui & Sysinfo Integration
+- `egui-winit`, `egui-wgpu`를 이용한 WGPU 환경 내 UI 레이어 통합.
+- `sysinfo` 크레이트를 통해 CPU, RAM 사용량을 실시간으로 수집하는 `SystemMonitor` 구조체 구현.
+
+### Step 2: Debug Overlay Implementation
+- `F2` 키를 이용한 디버그 패널 토글 기능 추가.
+- 플레이어 좌표, 로드된 청크 수, 시스템 자원(CPU/RAM) 상태바를 투명 오버레이로 출력.
+- `wgpu` 23.0 버전 호환성 확보 및 `forget_lifetime()`을 이용한 렌더 패스 수명 관리 문제 해결.
+
 ---
 

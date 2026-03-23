@@ -1,4 +1,6 @@
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BlockType {
     Air,
     Grass,
@@ -16,7 +18,7 @@ impl BlockType {
 }
 
 // Represents a 1x1x1 Voxel
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct Block {
     pub btype: BlockType,
 }

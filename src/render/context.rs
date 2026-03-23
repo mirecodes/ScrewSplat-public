@@ -14,7 +14,7 @@ impl WgpuContext {
     pub async fn new(window: Arc<Window>) -> Self {
         let size = window.inner_size();
 
-        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::new_without_display_handle());
+        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
 
         let surface = instance.create_surface(window.clone()).unwrap();
 
@@ -33,10 +33,9 @@ impl WgpuContext {
                     label: Some("Wgpu Device"),
                     required_features: wgpu::Features::empty(),
                     required_limits: wgpu::Limits::default(),
-                    memory_hints: Default::default(),
-                    experimental_features: Default::default(),
-                    trace: Default::default(),
+                    memory_hints: wgpu::MemoryHints::default(),
                 },
+                None, // Trace path
             )
             .await
             .unwrap();
