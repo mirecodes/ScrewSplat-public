@@ -41,6 +41,7 @@ struct App {
     sys_monitor: crate::debug::SystemMonitor,
     
     last_render_time: std::time::Instant,
+    current_fps: f32,
 }
 
 impl Default for App {
@@ -64,6 +65,7 @@ impl Default for App {
             show_debug_ui: true,
             sys_monitor: crate::debug::SystemMonitor::new(),
             last_render_time: std::time::Instant::now(),
+            current_fps: 60.0,
         }
     }
 }
@@ -179,11 +181,18 @@ impl ApplicationHandler for App {
                     let now = std::time::Instant::now();
                     let dt = now - self.last_render_time;
                     self.last_render_time = now;
+                    let dt_secs = dt.as_secs_f32();
+                    if dt_secs > 0.0 {
+                        self.current_fps = self.current_fps * 0.9 + (1.0 / dt_secs) * 0.1;
+                    }
 
                     // Update
                     if let (Some(world), Some(player), Some(uniform), Some(buf)) = (&mut self.world, &mut self.player, &mut self.camera_uniform, &self.camera_buffer) {
                         world.update(dt);
-                        world.update_chunks_around_player(player.position);
+                        let unloaded = world.update_chunks_around_player(player.position);
+                        for pos in unloaded {
+                            self.render_chunks.remove(&pos);
+                        }
                         while let Ok((cx, cz, chunk)) = world.chunk_receiver.try_recv() {
                             world.loading_chunks.remove(&(cx, cz));
                             let mesh = build_chunk_mesh(&chunk, cx, cz, |x, y, z| world.get_block_global(x, y, z));
@@ -208,6 +217,7 @@ impl ApplicationHandler for App {
                                 .frame(egui::Frame::none().fill(egui::Color32::from_black_alpha(150)))
                                 .show(&self.egui_ctx, |ui| {
                                     ui.visuals_mut().override_text_color = Some(egui::Color32::WHITE);
+                                    ui.label(format!("FPS: {:.0}", self.current_fps));
                                     if let Some(player) = &self.player {
                                         ui.label(format!("POS: {:.2}, {:.2}, {:.2}", player.position.x, player.position.y, player.position.z));
                                     }

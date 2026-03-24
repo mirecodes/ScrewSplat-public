@@ -34,9 +34,9 @@ Rust의 안정성과 성능, 그리고 최신 그래픽스 API인 WGPU를 사용
 
 ### 5. 동적 청크 관리 및 세이트/로드 (Dynamic World)
 - **Background Loading (MPSC)**: 지형 생성과 파일 I/O는 메인 렌더 루프를 방해하지 않도록 별도의 백그라운드 스레드에서 수행됩니다. `World` 객체가 `chunk_receiver`를 통해 생성 완료된 청크를 전달받아 즉시 렌더링 목록에 추가합니다.
-- **Serialization (Bincode/Gzip)**: `serde`와 `bincode`를 사용하여 청크 데이터를 바이너리로 변환하고, `flate2`로 압축하여 저장 공간을 효율적으로 사용합니다. 플레이어 이동에 따라 반경 내 청크는 로드하고 먼 청크는 저장 후 메모리에서 해제합니다.
-- **Spawn Sync**: 최초 스폰 시 플레이어 주변 청크(Radius 반경 내)가 모두 생성될 때까지 물리 엔진을 일시 정지하여 무한 추락을 완전 방지합니다.
+- **Serialization & Memory Management**: `serde`와 `bincode`를 사용하여 청크 데이터를 바이너리로 압축 저장합니다. 플레이어 반경 밖으로 벗어난 청크는 디스크에 자동 저장되며 RAM и VRAM 버퍼에서 완전히 해제되어 메모리 누수를 원천 차단합니다.
+- **Spawn Sync & Anti-Tunneling**: 최초 스폰 시 반경 내 청크 로드를 확인한 뒤 3초 대기 후 안전하게 지면에 안착시킵니다. 또한 렌더 루프 랙(Lag)이 발생했을 때 델타 타임(`dt`)을 최대 0.1초로 제한하여 1프레임 만에 지면을 관통하는 물리 폭발(Tunneling)을 방지합니다.
 
 ### 6. 디버그 및 인터페이스 (GUI)
 - **Egui Integration**: `egui-wgpu`를 사용하여 WGPU 프레임 버퍼 위에 즉시 모드(Immediate Mode) UI를 렌더링합니다. 
-- **System Monitoring**: `sysinfo`를 활용해 CPU 및 RAM 자원 사용량을 실시간으로 측정하여 화면에 표시합니다. `F2` 키를 통해 패널을 동적으로 켜고 끌 수 있습니다.
+- **System Monitoring**: 실시간 렌더링 FPS, `sysinfo`를 활용한 CPU/RAM 자원 점유율, 플레이어 좌표 등을 화면 측면에 투명 오버레이로 출력합니다. `F2` 키를 통해 패널을 동적으로 켜고 끌 수 있습니다.

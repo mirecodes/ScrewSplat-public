@@ -73,7 +73,7 @@ impl World {
         self.chunks.get(&(x, z))
     }
 
-    pub fn update_chunks_around_player(&mut self, player_pos: Vec3) {
+    pub fn update_chunks_around_player(&mut self, player_pos: Vec3) -> Vec<(i32, i32)> {
         let px = (player_pos.x / 16.0).floor() as i32;
         let pz = (player_pos.z / 16.0).floor() as i32;
 
@@ -101,11 +101,13 @@ impl World {
             }
         }
 
-        for pos in to_remove {
-            if let Some(chunk) = self.chunks.remove(&pos) {
+        for pos in &to_remove {
+            if let Some(chunk) = self.chunks.remove(pos) {
                 let _ = storage::save_chunk("worlds/test_world", pos.0, pos.1, &chunk);
             }
         }
+        
+        to_remove
     }
 
     pub fn is_area_loaded(&self, center_x: f32, center_z: f32, radius: i32) -> bool {
