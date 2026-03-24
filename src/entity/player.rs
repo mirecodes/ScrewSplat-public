@@ -14,6 +14,7 @@ pub struct Player {
     pub on_ground: bool,
     pub eye_height: f32,
     pub is_spawned: bool,
+    pub spawn_timer: f32,
 }
 
 impl Player {
@@ -28,6 +29,7 @@ impl Player {
             on_ground: false,
             eye_height: 1.6,
             is_spawned: false,
+            spawn_timer: 0.0,
         }
     }
 
@@ -38,7 +40,10 @@ impl Player {
 
 impl Entity for Player {
     fn update(&mut self, dt: Duration, world: &crate::world::World) {
-        let dt = dt.as_secs_f32();
+        let mut dt = dt.as_secs_f32();
+        if dt > 0.1 {
+            dt = 0.1; // Cap dt to prevent tunneling during lag spikes
+        }
 
         // Rotation
         self.yaw += self.controller.rotate_horizontal * self.controller.sensitivity * 0.01;
@@ -56,8 +61,17 @@ impl Entity for Player {
         let spawn_radius = world.render_distance; 
         if !self.is_spawned {
             if world.is_area_loaded(self.position.x, self.position.z, spawn_radius) {
-                self.is_spawned = true;
+                self.spawn_timer += dt;
+                if self.spawn_timer >= 3.0 {
+                    self.is_spawned = true;
+                    // Spawn safely on the highest block
+                    self.position.y = world.get_highest_block_y(self.position.x, self.position.z) + self.eye_height;
+                } else {
+                    self.velocity = Vec3::ZERO;
+                    return; // Wait 3 seconds
+                }
             } else {
+                self.spawn_timer = 0.0; // Reset if unloaded
                 self.velocity = Vec3::ZERO;
                 return; // Pause physics
             }

@@ -78,8 +78,8 @@ impl World {
         let pz = (player_pos.z / 16.0).floor() as i32;
 
         let r = self.render_distance;
-        for x in (px - r)..(px + r) {
-            for z in (pz - r)..(pz + r) {
+        for x in (px - r)..=(px + r) {
+            for z in (pz - r)..=(pz + r) {
                 let dx = x - px;
                 let dz = z - pz;
                 if dx * dx + dz * dz <= r * r {
@@ -143,6 +143,17 @@ impl World {
         }
 
         BlockType::Air
+    }
+
+    pub fn get_highest_block_y(&self, x: f32, z: f32) -> f32 {
+        let ix = x.floor() as i32;
+        let iz = z.floor() as i32;
+        for y in (0..256).rev() {
+            if !self.get_block_global(ix, y, iz).is_transparent() {
+                return (y + 1) as f32;
+            }
+        }
+        80.0 // Fallback
     }
 
     pub fn has_solid_block_in_aabb(&self, min: Vec3, max: Vec3) -> bool {
